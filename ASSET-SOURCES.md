@@ -12,5 +12,7 @@ These locally downloaded images are mock storefront assets for the UI prototype.
 | `public/images/bag.jpg` | [Unsplash image `photo-1548036328-c9fa89d128fa`](https://images.unsplash.com/photo-1548036328-c9fa89d128fa) |
 | `public/images/skincare.jpg` | [Unsplash image `photo-1608248543803-ba4f8c70ae0b`](https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b) |
 | `public/images/watch.jpg` | [Unsplash image `photo-1523275335684-37898b6baf30`](https://images.unsplash.com/photo-1523275335684-37898b6baf30) |
+| `public/images/blender.jpg` | [Unsplash image `photo-1570222094114-d054a817e56b`](https://images.unsplash.com/photo-1570222094114-d054a817e56b) |
+| `public/images/interior.jpg` | [Unsplash image `photo-1586023492125-27b2c045efd7`](https://images.unsplash.com/photo-1586023492125-27b2c045efd7) |
 
 Images are stored locally so the storefront does not rely on remote image hosts at runtime.
