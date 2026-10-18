@@ -24,3 +24,8 @@ pnpm-debug.log*
 .DS_Store
 .idea/
 .vscode/
+
+# local probe artifacts (session-only harness files)
+dev.log
+public/__a2debug.html
+public/__a2seed.html
