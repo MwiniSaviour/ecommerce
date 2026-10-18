@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MapPin, Package, Save, ScrollText } from "lucide-react";
+import { MapPin, Package, Save, ScrollText, Store, Truck } from "lucide-react";
 import { SignInPanel, useAccountSession, setSession } from "@/components/account-auth-panel";
 
 const quickLinks = [
@@ -13,6 +13,11 @@ const quickLinks = [
 
 export default function AccountPage() {
   const session = useAccountSession();
+
+  const partnerLinks = [
+    { href: "/seller", label: "Sell on Kora", description: "Open a shop in the Kora Vendor Hub", icon: Store },
+    { href: "/driver/apply", label: "Drive with Kora", description: "Deliver orders and earn with the fleet", icon: Truck },
+  ];
 
   return (
     <div className="mx-auto w-full max-w-[1440px] px-4 py-7 sm:px-6">
@@ -61,6 +66,28 @@ export default function AccountPage() {
         ) : (
           <SignInPanel />
         )}
+      </section>
+
+      <section aria-labelledby="partners-title" className="mt-6">
+        <h2 id="partners-title" className="mb-2.5 text-[14px] font-bold text-ink">
+          Make money with Kora Market
+        </h2>
+        <ul className="grid gap-3 sm:grid-cols-2" data-testid="partner-links">
+          {partnerLinks.map((link) => (
+            <li key={link.href}>
+              <Link
+                href={link.href}
+                className="flex h-full items-start gap-3 rounded-[2px] border border-border bg-paper p-4 transition hover:border-brand"
+              >
+                <link.icon aria-hidden="true" size={18} strokeWidth={1.9} className="mt-0.5 shrink-0 text-brand" />
+                <span>
+                  <span className="block text-[13px] font-bold text-ink">{link.label}</span>
+                  <span className="mt-0.5 block text-[11px] leading-relaxed text-muted">{link.description}</span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   );

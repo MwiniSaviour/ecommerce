@@ -80,3 +80,7 @@ once before blaming code that allegedly "hangs".
 - Probe artifacts (`dev.log`, `public/__a2debug.html`,
   `public/__a2seed.html`, `$PREFIX/tmp/opencode/kora-vfy/…`) are
   session-local and intentionally not committed.
+
+## Dev server silent death (Oct 2026)
+- `next dev` died between sessions with no entry in dev.log; curl returned 000 and no PID via /proc scan.
+- Fix: per-session restart `nohup node node_modules/next/dist/bin/next dev --webpack -p 3001 >> dev.log 2>&1 & disown`; always assume the server is down before verifying output.

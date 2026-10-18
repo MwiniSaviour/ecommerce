@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { HelpCircle, LayoutGrid, ShoppingCart, X } from "lucide-react";
+import { HelpCircle, LayoutGrid, ShoppingCart, Store, X } from "lucide-react";
 import { categories } from "@/lib/categories";
 import { useStorefront } from "@/components/storefront-provider";
 
 const quickLinks = [
+  { label: "Sell on Kora", href: "/seller" },
   { label: "Help", href: "/help/contact" },
   { label: "Track an order", href: "/account/orders" },
   { label: "Saved items", href: "/account/saved" },
@@ -39,7 +40,7 @@ export function SiteHeader() {
   return (
     <header>
       <div className="bg-[#B177DA] px-4 py-1 text-center text-[11px] font-medium text-white">
-        <Link href="/help/contact" className="underline-offset-2 hover:underline">
+        <Link href="/seller" className="underline-offset-2 hover:underline">
           Grow your business — sell on Kora Market
         </Link>
       </div>
@@ -75,6 +76,10 @@ export function SiteHeader() {
             </button>
           </form>
           <nav aria-label="Account and cart" className="hidden items-center gap-5 text-[12px] font-medium text-ink sm:flex">
+            <Link href="/seller" className="hidden items-center gap-1.5 hover:text-brand lg:flex">
+              <Store aria-hidden="true" size={18} strokeWidth={1.75} />
+              Sell
+            </Link>
             <Link href="/help/contact" className="flex items-center gap-1.5 hover:text-brand">
               <HelpCircle aria-hidden="true" size={18} strokeWidth={1.75} />
               Help

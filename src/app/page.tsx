@@ -1,15 +1,10 @@
 import Link from "next/link";
-import { ChevronRight, CreditCard, PackageCheck, Truck } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { HomeHero } from "@/components/home-hero";
 import { CategoryRail } from "@/components/category-rail";
 import { ProductCard } from "@/components/product-card";
+import { ServicesBanner } from "@/components/services-banner";
 import { discountedProducts, products } from "@/lib/products";
-
-const services = [
-  { label: "Delivery across Ghana", href: "/help/delivery", icon: Truck },
-  { label: "Pay with Mobile Money", href: "/help/payment", icon: CreditCard },
-  { label: "Easy returns", href: "/help/returns", icon: PackageCheck },
-];
 
 export default function HomePage() {
   const deals = discountedProducts();
@@ -51,14 +46,7 @@ export default function HomePage() {
         </ul>
       </section>
 
-      <section aria-label="How shopping works" className="mt-8 grid gap-2.5 sm:mt-10 sm:grid-cols-3">
-        {services.map(({ label, href, icon: Icon }) => (
-          <Link key={href} href={href} className="flex items-center gap-3 rounded-md border border-border bg-paper px-3.5 py-3 text-[12px] font-medium text-ink hover:border-brand/50">
-            <Icon aria-hidden="true" size={18} strokeWidth={1.75} className="text-brand" />
-            {label}
-          </Link>
-        ))}
-      </section>
+      <ServicesBanner />
     </div>
   );
 }

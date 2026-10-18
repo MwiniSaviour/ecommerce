@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { helpGroup, aboutGroup } from "@/lib/navigation";
+import { helpGroup, aboutGroup, partnerGroup } from "@/lib/navigation";
 
 const payments = ["Mobile Money", "Visa", "Mastercard"];
 
@@ -7,7 +7,7 @@ export function SiteFooter() {
   return (
     <footer className="bg-forest text-white/80">
       <div className="mx-auto max-w-[1440px] px-4 pb-24 pt-8 sm:px-6 sm:pt-10">
-        <div className="grid gap-8 sm:grid-cols-[1.2fr_1fr_1fr]">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1fr]">
           <div>
             <p className="text-lg font-bold text-brand">
               Kora<span className="text-brand-deep">Market</span>
@@ -40,6 +40,16 @@ export function SiteFooter() {
             <h2 className="mb-2.5 text-[12px] font-bold uppercase tracking-wide text-white">About</h2>
             <ul className="space-y-2 text-[12px]">
               {aboutGroup.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="hover:text-white">{link.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <nav aria-label="Make money with Kora Market">
+            <h2 className="mb-2.5 text-[12px] font-bold uppercase tracking-wide text-white">Money with Kora</h2>
+            <ul className="space-y-2 text-[12px]">
+              {partnerGroup.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="hover:text-white">{link.label}</Link>
                 </li>

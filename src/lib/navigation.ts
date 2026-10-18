@@ -25,3 +25,8 @@ export const aboutGroup: NavLink[] = [
   { label: "Flash Sales", href: "/deals" },
   { label: "Sell with us", href: "/help/contact" },
 ];
+
+export const partnerGroup: NavLink[] = [
+  { label: "Sell on Kora", href: "/seller", description: "Vendor Hub for merchants" },
+  { label: "Drive with Kora", href: "/driver/apply", description: "Apply to join the delivery fleet" },
+];
