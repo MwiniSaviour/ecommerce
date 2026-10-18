@@ -56,7 +56,7 @@ export function HomeView() {
     const updated = updateTaskStatus(getDriverTaskById(nextTask.id, copy) ?? nextTask, "accepted", "Task accepted from Kora Fleet");
     saveDriverTasks(copy.map((task) => (task.id === updated.id ? updated : task)));
     setTasks(getDriverTasks());
-    router.push(`/driver/job/${nextTask.id}`);
+    router.push(`/driver/job?id=${nextTask.id}`);
   }
 
   return (
@@ -148,7 +148,7 @@ export function HomeView() {
 
       {(sorted.find((task) => ["accepted", "picked-up", "en-route"].includes(task.status))) != null && (
         <Link
-          href={`/driver/job/${sorted.find((task) => ["accepted", "picked-up", "en-route"].includes(task.status))!.id}`}
+          href={`/driver/job?id=${sorted.find((task) => ["accepted", "picked-up", "en-route"].includes(task.status))!.id}`}
           className="motion-safe:transition flex items-center justify-between rounded-[4px] border border-info bg-info-soft p-4 hover:border-info/60"
         >
           <div>

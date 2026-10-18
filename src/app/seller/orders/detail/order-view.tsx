@@ -6,7 +6,7 @@
 // and page meta hide, leaving the label or invoice preview on the sheet.
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft, FileText, PackageOpen, Printer, Truck, XCircle } from "lucide-react";
 import { useStorefront } from "@/components/storefront-provider";
@@ -27,14 +27,15 @@ const METHOD_LABELS: Record<string, string> = {
   door: "Door delivery",
 };
 
-export default function SellerOrderDetailPage() {
-  const params = useParams<{ id: string }>();
+export function OrderView() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id") ?? "";
   const router = useRouter();
   const { showToast } = useStorefront();
   const orders = useSellerOrders();
   const [printTab, setPrintTab] = useState<"label" | "invoice">("label");
 
-  const order = orders.find((entry) => entry.id === params.id);
+  const order = orders.find((entry) => entry.id === id);
 
   if (!order) {
     return (

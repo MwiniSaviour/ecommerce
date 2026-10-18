@@ -250,7 +250,7 @@ export default function SellerOrdersPage() {
                   </td>
                   <td className="px-3 py-3">
                     <Link
-                      href={`/seller/orders/${order.id}`}
+                      href={`/seller/orders/detail?id=${order.id}`}
                       className="font-mono text-[12px] font-bold text-brand hover:underline"
                     >
                       {order.id}

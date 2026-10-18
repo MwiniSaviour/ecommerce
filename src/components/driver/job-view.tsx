@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { AlertTriangle, ArrowRight, Check, MapPin, Package, Phone, X } from "lucide-react";
 import {
   FAILED_DELIVERY_REASONS,
@@ -64,7 +65,9 @@ function Timeline({ task }: { task: DriverTask }) {
   );
 }
 
-export function JobView({ id }: { id: string }) {
+export function JobView() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id") ?? "";
   const [tasks, setTasks] = useState<DriverTask[]>(() => getDriverTasks());
   const task = getDriverTaskById(id, tasks);
   const [offerExpired, setOfferExpired] = useState(false);
@@ -166,7 +169,7 @@ export function JobView({ id }: { id: string }) {
       )}
 
       {task.status === "accepted" && (
-        <Link href={`/driver/job/${task.id}/pickup`} className={nextCtaClass}>
+        <Link href={`/driver/job/pickup?id=${task.id}`} className={nextCtaClass}>
           Proceed to pickup <ArrowRight size={16} aria-hidden="true" />
         </Link>
       )}
@@ -178,7 +181,7 @@ export function JobView({ id }: { id: string }) {
       )}
 
       {task.status === "en-route" && (
-        <Link href={`/driver/job/${task.id}/dropoff`} className={nextCtaClass}>
+        <Link href={`/driver/job/dropoff?id=${task.id}`} className={nextCtaClass}>
           Complete delivery <ArrowRight size={16} aria-hidden="true" />
         </Link>
       )}

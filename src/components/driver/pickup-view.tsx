@@ -4,6 +4,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Check, ClipboardCheck, KeyRound } from "lucide-react";
 import {
   getDriverTaskById,
@@ -20,7 +21,9 @@ const CHECKLIST = [
   "No visible damage on the box",
 ];
 
-export function PickupView({ id }: { id: string }) {
+export function PickupView() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id") ?? "";
   const [tasks, setTasks] = useState<DriverTask[]>(() => getDriverTasks());
   const task = getDriverTaskById(id, tasks);
   const [checked, setChecked] = useState<boolean[]>([false, false, false]);
@@ -49,7 +52,7 @@ export function PickupView({ id }: { id: string }) {
     return (
       <main className="flex flex-1 flex-col gap-4 px-4 py-5">
         <div className="flex items-center justify-between">
-          <Link href={`/driver/job/${task.id}`} className="text-[12px] font-bold text-info hover:underline">
+          <Link href={`/driver/job?id=${task.id}`} className="text-[12px] font-bold text-info hover:underline">
             {task.id}
           </Link>
           <StatusBadge status={task.status} />
@@ -68,7 +71,7 @@ export function PickupView({ id }: { id: string }) {
           </section>
         )}
         <Link
-          href={`/driver/job/${task.id}`}
+          href={`/driver/job?id=${task.id}`}
           className={`${confirmClass} bg-brand hover:opacity-90`}
         >
           Continue
@@ -80,7 +83,7 @@ export function PickupView({ id }: { id: string }) {
   return (
     <main className="flex flex-1 flex-col gap-4 px-4 py-5">
       <div className="flex items-center justify-between">
-        <Link href={`/driver/job/${task.id}`} className="text-[12px] font-bold text-info hover:underline">
+        <Link href={`/driver/job?id=${task.id}`} className="text-[12px] font-bold text-info hover:underline">
           {task.id}
         </Link>
         <StatusBadge status={task.status} />

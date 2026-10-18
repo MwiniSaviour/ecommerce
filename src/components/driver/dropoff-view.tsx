@@ -4,7 +4,7 @@
 
 import { useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { BadgeAlert, Camera, Check, KeyRound, PackageCheck, PenLine } from "lucide-react";
 import { useStorefront } from "@/components/storefront-provider";
 import {
@@ -21,7 +21,9 @@ type ProofTab = "photo" | "signature" | "otp";
 
 const OTP_LENGTH = 4;
 
-export function DropoffView({ id }: { id: string }) {
+export function DropoffView() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id") ?? "";
   const router = useRouter();
   const { showToast } = useStorefront();
   const [tasks, setTasks] = useState<DriverTask[]>(() => getDriverTasks());
@@ -39,7 +41,7 @@ export function DropoffView({ id }: { id: string }) {
         <PackageCheck size={28} aria-hidden="true" className="text-muted" />
         <p className="text-[14px] font-bold text-ink">Dropoff unavailable</p>
         <p className="max-w-[26ch] text-[12px] text-muted">Complete the pickup step before starting dropoff.</p>
-        <Link href={`/driver/job/${id}`} className="text-[12px] font-bold text-info hover:underline">
+        <Link href={`/driver/job?id=${id}`} className="text-[12px] font-bold text-info hover:underline">
           Back to the task
         </Link>
       </main>
@@ -56,7 +58,7 @@ export function DropoffView({ id }: { id: string }) {
     return (
       <main className="flex flex-1 flex-col gap-4 px-4 py-5">
         <div className="flex items-center justify-between">
-          <Link href={`/driver/job/${task.id}`} className="text-[12px] font-bold text-info hover:underline">
+          <Link href={`/driver/job?id=${task.id}`} className="text-[12px] font-bold text-info hover:underline">
             {task.id}
           </Link>
           <StatusBadge status={task.status} />
@@ -90,7 +92,7 @@ export function DropoffView({ id }: { id: string }) {
   return (
     <main className="flex flex-1 flex-col gap-4 px-4 py-5">
       <div className="flex items-center justify-between">
-        <Link href={`/driver/job/${task.id}`} className="text-[12px] font-bold text-info hover:underline">
+        <Link href={`/driver/job?id=${task.id}`} className="text-[12px] font-bold text-info hover:underline">
           {task.id}
         </Link>
         <StatusBadge status={task.status} />
@@ -240,7 +242,7 @@ export function DropoffView({ id }: { id: string }) {
                     saveDriverTasks(updated);
                     setTasks(updated);
                     setShowReasons(false);
-                    router.push(`/driver/job/${id}`);
+                    router.push(`/driver/job?id=${id}`);
                   }}
                   className="min-h-10 w-full rounded-[4px] border border-border bg-paper px-3 py-2 text-start text-[12px] text-ink hover:bg-sand"
                 >

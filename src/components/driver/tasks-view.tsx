@@ -9,7 +9,7 @@ import { StatusBadge, taskCardClass, relativeAge, formatGhc } from "@/components
 
 function TaskRow({ task }: { task: DriverTask }) {
   const linked = task.status !== "delivered" && task.status !== "failed" && task.status !== "returned";
-  const navigate = linked ? `/driver/job/${task.id}` : `/driver/job/${task.id}`;
+  const navigate = `/driver/job?id=${task.id}`;
 
   return (
     <li>
