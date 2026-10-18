@@ -63,7 +63,7 @@ export function CartDrawer() {
     <div className="fixed inset-0 z-[80] flex justify-end" role="presentation">
       <button
         type="button"
-        aria-label="Close shopping bag"
+        aria-label="Close shopping cart"
         className="drawer-backdrop absolute inset-0 cursor-default bg-ink/45 backdrop-blur-[2px]"
         onClick={() => { setCheckoutMode(false); setCartOpen(false); }}
       />
@@ -77,19 +77,19 @@ export function CartDrawer() {
           <div>
             {checkoutMode && (
               <button type="button" onClick={() => setCheckoutMode(false)} className="mb-3 flex items-center gap-1.5 text-[11px] font-semibold text-muted transition hover:text-ink">
-                <ArrowLeft aria-hidden="true" size={14} /> Back to bag
+                <ArrowLeft aria-hidden="true" size={14} /> Back to cart
               </button>
             )}
             <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-brand">A good choice</p>
             <h2 id="cart-title" className="mt-1 font-display text-[29px] leading-tight tracking-[-0.035em] text-ink sm:text-[32px]">
-              {checkoutMode ? "Checkout preview" : "Your shopping bag"}
+              {checkoutMode ? "Checkout preview" : "Your shopping cart"}
             </h2>
-            {!checkoutMode && <p className="mt-1.5 text-xs text-muted">{cartCount} {cartCount === 1 ? "thoughtful find" : "thoughtful finds"} in your bag</p>}
+            {!checkoutMode && <p className="mt-1.5 text-xs text-muted">{cartCount} {cartCount === 1 ? "item" : "items"} in your cart</p>}
           </div>
           <button
             ref={closeButtonRef}
             type="button"
-            aria-label="Close shopping bag"
+        aria-label="Close shopping cart"
             onClick={() => { setCheckoutMode(false); setCartOpen(false); }}
             className="flex size-10 items-center justify-center rounded-full border border-border text-muted transition hover:bg-cream hover:text-ink"
           >
@@ -103,10 +103,10 @@ export function CartDrawer() {
               <div>
                 <div className="mb-3 flex items-center justify-between">
                   <h3 className="text-sm font-bold text-ink">Delivery address</h3>
-                  <span className="rounded-full bg-[#eaf0e1] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-forest">Sample</span>
+                  <span className="rounded-full bg-leaf px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-brand-deep">Sample</span>
                 </div>
-                <div className="flex items-start gap-3 rounded-[18px] border border-forest/20 bg-[#f2f4ec] p-4">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white text-forest"><Check aria-hidden="true" size={17} /></span>
+                <div className="flex items-start gap-3 rounded-[18px] border border-border bg-sand p-4">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white text-brand-deep"><Check aria-hidden="true" size={17} /></span>
                   <div>
                     <p className="text-sm font-bold text-ink">Accra, Greater Accra</p>
                     <p className="mt-1 text-xs leading-relaxed text-muted">Ghana · Add a street address after signing in</p>
@@ -117,12 +117,12 @@ export function CartDrawer() {
               <fieldset>
                 <legend className="mb-3 text-sm font-bold text-ink">How should it get to you?</legend>
                 <div className="space-y-2">
-                  <label className={`flex cursor-pointer items-center gap-3 rounded-[17px] border p-3.5 transition ${deliveryMethod === "doorstep" ? "border-forest/35 bg-[#f2f4ec]" : "border-border hover:bg-cream"}`}>
-                    <input type="radio" name="delivery" value="doorstep" checked={deliveryMethod === "doorstep"} onChange={() => setDeliveryMethod("doorstep")} className="accent-[#193d32]" />
+                  <label className={`flex cursor-pointer items-center gap-3 rounded-[17px] border p-3.5 transition ${deliveryMethod === "doorstep" ? "border-brand/40 bg-leaf" : "border-border hover:bg-cream"}`}>
+                    <input type="radio" name="delivery" value="doorstep" checked={deliveryMethod === "doorstep"} onChange={() => setDeliveryMethod("doorstep")} className="accent-brand" />
                     <span className="flex-1"><span className="block text-xs font-bold text-ink">Doorstep delivery</span><span className="mt-1 block text-[10px] text-muted">We’ll show your estimate before you place the order</span></span>
                   </label>
-                  <label className={`flex cursor-pointer items-center gap-3 rounded-[17px] border p-3.5 transition ${deliveryMethod === "pickup" ? "border-forest/35 bg-[#f2f4ec]" : "border-border hover:bg-cream"}`}>
-                    <input type="radio" name="delivery" value="pickup" checked={deliveryMethod === "pickup"} onChange={() => setDeliveryMethod("pickup")} className="accent-[#193d32]" />
+                  <label className={`flex cursor-pointer items-center gap-3 rounded-[17px] border p-3.5 transition ${deliveryMethod === "pickup" ? "border-brand/40 bg-leaf" : "border-border hover:bg-cream"}`}>
+                    <input type="radio" name="delivery" value="pickup" checked={deliveryMethod === "pickup"} onChange={() => setDeliveryMethod("pickup")} className="accent-brand" />
                     <span className="flex-1"><span className="block text-xs font-bold text-ink">Pick-up point</span><span className="mt-1 block text-[10px] text-muted">Choose a convenient collection point at checkout</span></span>
                   </label>
                 </div>
@@ -131,20 +131,20 @@ export function CartDrawer() {
               <fieldset>
                 <legend className="mb-3 text-sm font-bold text-ink">Choose how you’ll pay</legend>
                 <div className="grid grid-cols-2 gap-2">
-                  <label className={`cursor-pointer rounded-[17px] border p-3.5 transition ${paymentMethod === "mobile-money" ? "border-forest/35 bg-[#f2f4ec]" : "border-border hover:bg-cream"}`}>
-                    <input type="radio" name="payment" value="mobile-money" checked={paymentMethod === "mobile-money"} onChange={() => setPaymentMethod("mobile-money")} className="accent-[#193d32]" />
+                  <label className={`cursor-pointer rounded-[17px] border p-3.5 transition ${paymentMethod === "mobile-money" ? "border-brand/40 bg-leaf" : "border-border hover:bg-cream"}`}>
+                    <input type="radio" name="payment" value="mobile-money" checked={paymentMethod === "mobile-money"} onChange={() => setPaymentMethod("mobile-money")} className="accent-brand" />
                     <span className="mt-2 block text-xs font-bold text-ink">Mobile Money</span>
                     <span className="mt-1 block text-[10px] leading-relaxed text-muted">Pay securely on your phone</span>
                   </label>
-                  <label className={`cursor-pointer rounded-[17px] border p-3.5 transition ${paymentMethod === "pay-on-delivery" ? "border-forest/35 bg-[#f2f4ec]" : "border-border hover:bg-cream"}`}>
-                    <input type="radio" name="payment" value="pay-on-delivery" checked={paymentMethod === "pay-on-delivery"} onChange={() => setPaymentMethod("pay-on-delivery")} className="accent-[#193d32]" />
+                  <label className={`cursor-pointer rounded-[17px] border p-3.5 transition ${paymentMethod === "pay-on-delivery" ? "border-brand/40 bg-leaf" : "border-border hover:bg-cream"}`}>
+                    <input type="radio" name="payment" value="pay-on-delivery" checked={paymentMethod === "pay-on-delivery"} onChange={() => setPaymentMethod("pay-on-delivery")} className="accent-brand" />
                     <span className="mt-2 block text-xs font-bold text-ink">Pay on delivery</span>
                     <span className="mt-1 block text-[10px] leading-relaxed text-muted">Payment at your door</span>
                   </label>
                 </div>
               </fieldset>
 
-              <div className="rounded-[18px] bg-[#f7f5ef] p-4">
+              <div className="rounded-[18px] bg-sand p-4">
                 <div className="flex items-center justify-between text-xs text-muted"><span>Items ({cartCount})</span><span className="font-semibold text-ink">{formatPrice(cartSubtotal)}</span></div>
                 <p className="mt-2 text-[10px] leading-relaxed text-muted">Delivery and any applicable fees are estimates for this demo and would be confirmed before a real order.</p>
               </div>
@@ -158,10 +158,10 @@ export function CartDrawer() {
           </form>
         ) : cartItems.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
-            <span className="flex size-[76px] items-center justify-center rounded-[26px] bg-[#edf1e9] text-forest"><ShoppingBag aria-hidden="true" size={29} strokeWidth={1.5} /></span>
-            <h3 className="mt-5 font-display text-[27px] tracking-[-0.035em] text-ink">Your bag has room for good things.</h3>
+            <span className="flex size-[76px] items-center justify-center rounded-[26px] bg-leaf text-brand-deep"><ShoppingBag aria-hidden="true" size={29} strokeWidth={1.5} /></span>
+            <h3 className="mt-5 font-display text-[27px] tracking-[-0.035em] text-ink">Your cart has room for good things.</h3>
             <p className="mt-2 max-w-[270px] text-sm leading-relaxed text-muted">Start with one thoughtful find. We’ll keep it right here while you look around.</p>
-            <button type="button" onClick={() => setCartOpen(false)} className="mt-6 flex min-h-11 items-center gap-2 rounded-full bg-forest px-5 text-xs font-bold text-white transition hover:bg-forest-light">
+            <button type="button" onClick={() => setCartOpen(false)} className="mt-6 flex min-h-11 items-center gap-2 rounded-full bg-brand px-5 text-xs font-bold text-white transition hover:bg-brand-deep">
               Keep browsing <ArrowRight aria-hidden="true" size={15} />
             </button>
           </div>
@@ -174,7 +174,7 @@ export function CartDrawer() {
                 </p>
                 <span className="shrink-0 text-muted">{Math.round(deliveryProgress)}%</span>
               </div>
-              <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-[#e7e9e1]">
+              <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-sand">
                 <div className="h-full rounded-full bg-brand transition-all duration-500" style={{ width: `${deliveryProgress}%` }} />
               </div>
             </div>
@@ -185,8 +185,8 @@ export function CartDrawer() {
                 if (!product) return null;
                 return (
                   <article key={item.id} className="flex gap-3 rounded-[20px] border border-border/80 bg-white p-2.5">
-                    <div className="relative size-[84px] shrink-0 overflow-hidden rounded-[15px] bg-[#f1f0eb]">
-                      <Image src={product.image} alt={product.alt} fill sizes="84px" className="object-cover" />
+                    <div className="relative size-[84px] shrink-0 overflow-hidden rounded-[15px] bg-sand">
+                      <Image src={product.image} alt={product.name} fill sizes="84px" className="object-cover" />
                     </div>
                     <div className="flex min-w-0 flex-1 flex-col py-0.5">
                       <div className="flex items-start justify-between gap-2">
@@ -194,7 +194,7 @@ export function CartDrawer() {
                           <p className="truncate text-[9px] font-bold uppercase tracking-[0.13em] text-muted">{product.brand}</p>
                           <h3 className="mt-1 line-clamp-2 text-xs font-semibold leading-snug text-ink">{product.name}</h3>
                         </div>
-                        <button type="button" aria-label={`Remove ${product.name} from bag`} onClick={() => removeFromCart(item.id)} className="flex size-7 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-[#f9eae5] hover:text-brand"><Trash2 aria-hidden="true" size={14} /></button>
+                        <button type="button" aria-label={`Remove ${product.name} from cart`} onClick={() => removeFromCart(item.id)} className="flex size-7 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-cream hover:text-brand"><Trash2 aria-hidden="true" size={14} /></button>
                       </div>
                       <div className="mt-auto flex items-end justify-between gap-2 pt-2">
                         <div className="flex h-7 items-center rounded-full border border-border">

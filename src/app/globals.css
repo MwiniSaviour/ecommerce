@@ -1,25 +1,32 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", "Avenir Next", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
-  --color-ink: #18332b;
-  --color-forest: #193d32;
-  --color-forest-light: #2a5648;
-  --color-muted: #738078;
-  --color-brand: #e97858;
-  --color-brand-deep: #c85c3d;
-  --color-cream: #f7f7f2;
-  --color-paper: #fffefa;
-  --color-leaf: #d9e5bd;
-  --color-border: #e6e8e1;
-  --color-sand: #ede9de;
+  --font-sans: var(--font-roboto), Roboto, "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
+  --font-display: var(--font-roboto), Roboto, "Helvetica Neue", Arial, sans-serif;
+  --color-ink: #1c1c1e;
+  --color-forest: #2f2f31;
+  --color-forest-light: #545458;
+  --color-muted: #757575;
+  --color-brand: #f68b1e;
+  --color-brand-deep: #d97a14;
+  --color-cream: #f4f4f6;
+  --color-paper: #ffffff;
+  --color-leaf: #fdeedd;
+  --color-border: #e5e5e8;
+  --color-sand: #f0f0f2;
+  --color-ok: #0b7a3c;
+  --color-warn: #b4630d;
+  --color-info: #1759b7;
+  --color-hold: #8a1f1f;
+  --color-ok-soft: #e7f5ec;
+  --color-warn-soft: #fdf2e0;
+  --color-info-soft: #e8f0fb;
 }
 
 :root {
   color-scheme: light;
-  --page-bg: #f7f7f2;
-  --header-height: 112px;
+  --page-bg: #f4f4f6;
+  --header-height: 126px;
 }
 
 * {
@@ -36,7 +43,7 @@ body {
   min-height: 100vh;
   margin: 0;
   background: var(--page-bg);
-  color: #18332b;
+  color: #1c1c1e;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -56,17 +63,17 @@ button {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible {
-  outline: 3px solid rgba(233, 120, 88, 0.55);
+  outline: 3px solid rgba(246, 139, 30, 0.55);
   outline-offset: 3px;
 }
 
 ::selection {
-  background: #dce8c4;
-  color: #18332b;
+  background: #fdeedd;
+  color: #1c1c1e;
 }
 
 .hero-image-fade {
-  background: linear-gradient(90deg, rgba(238, 241, 233, 0) 70%, rgba(238, 241, 233, 0.18) 100%);
+  background: linear-gradient(90deg, rgba(244, 244, 246, 0) 70%, rgba(244, 244, 246, 0.18) 100%);
 }
 
 .hero-orb {
@@ -93,8 +100,8 @@ input:focus-visible {
 
 .product-card:hover {
   transform: translateY(-3px);
-  border-color: rgba(25, 61, 50, 0.12);
-  box-shadow: 0 18px 42px rgba(25, 61, 50, 0.08);
+  border-color: rgba(47, 47, 49, 0.12);
+  box-shadow: 0 18px 42px rgba(47, 47, 49, 0.08);
 }
 
 .product-image img {
@@ -111,7 +118,7 @@ input:focus-visible {
 
 .category-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(25, 61, 50, 0.065);
+  box-shadow: 0 10px 24px rgba(47, 47, 49, 0.065);
 }
 
 .toast-enter {
@@ -145,7 +152,7 @@ input:focus-visible {
   :root { --header-height: 126px; }
   html { scroll-padding-top: 106px; }
   .hero-image-fade {
-    background: linear-gradient(0deg, rgba(238, 241, 233, 0.08), rgba(238, 241, 233, 0) 42%);
+    background: linear-gradient(0deg, rgba(244, 244, 246, 0.08), rgba(244, 244, 246, 0) 42%);
   }
 }
 

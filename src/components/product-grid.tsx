@@ -108,8 +108,8 @@ export function ProductGrid() {
           {visibleProducts.map((product) => <ProductCard key={product.id} product={product} />)}
         </div>
       ) : (
-        <div className="flex min-h-[270px] flex-col items-center justify-center rounded-[26px] border border-dashed border-forest/20 bg-[#f1f3ec] px-5 py-12 text-center">
-          <span className="flex size-12 items-center justify-center rounded-2xl bg-white text-forest shadow-sm">
+        <div className="flex min-h-[270px] flex-col items-center justify-center rounded-[26px] border border-dashed border-border bg-cream px-5 py-12 text-center">
+          <span className="flex size-12 items-center justify-center rounded-2xl bg-white text-muted shadow-sm">
             {savedOnly && wishlistIds.length === 0 ? <Heart aria-hidden="true" size={21} /> : <Search aria-hidden="true" size={21} />}
           </span>
           <h3 className="mt-4 font-display text-[25px] tracking-[-0.03em] text-ink">

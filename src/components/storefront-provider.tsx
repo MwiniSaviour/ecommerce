@@ -26,6 +26,7 @@ type StorefrontContextValue = {
   addToCart: (id: string, quantity?: number) => void;
   updateCartItem: (id: string, quantity: number) => void;
   removeFromCart: (id: string) => void;
+  clearCart: () => void;
   wishlistIds: string[];
   toggleWishlist: (id: string) => void;
   searchTerm: string;
@@ -163,7 +164,7 @@ export function StorefrontProvider({ children }: { children: ReactNode }) {
         }
         return [...items, { id, quantity }];
       });
-      showToast(`${product.name} added to your bag`);
+      showToast(`${product.name} added to your cart`);
     },
     [showToast],
   );
@@ -178,6 +179,10 @@ export function StorefrontProvider({ children }: { children: ReactNode }) {
 
   const removeFromCart = useCallback((id: string) => {
     cartStore.setState((items) => items.filter((item) => item.id !== id));
+  }, []);
+
+  const clearCart = useCallback(() => {
+    cartStore.setState(() => []);
   }, []);
 
   const toggleWishlist = useCallback((id: string) => {
@@ -200,6 +205,7 @@ export function StorefrontProvider({ children }: { children: ReactNode }) {
       addToCart,
       updateCartItem,
       removeFromCart,
+      clearCart,
       wishlistIds,
       toggleWishlist,
       searchTerm,
@@ -219,6 +225,7 @@ export function StorefrontProvider({ children }: { children: ReactNode }) {
       addToCart,
       updateCartItem,
       removeFromCart,
+      clearCart,
       wishlistIds,
       toggleWishlist,
       searchTerm,

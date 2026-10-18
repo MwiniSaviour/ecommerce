@@ -1,10 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { CartDrawer } from "@/components/cart-drawer";
-import { MobileBottomNav, SiteHeader } from "@/components/site-header";
+import { Roboto } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
+import { StorefrontChrome } from "@/components/storefront-chrome";
 import { StorefrontProvider } from "@/components/storefront-provider";
 import { ToastNotice } from "@/components/toast-notice";
 import "./globals.css";
+
+const roboto = Roboto({
+  weight: ["400", "500", "700"],
+  subsets: ["latin"],
+  variable: "--font-roboto",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Kora Market — Good finds for every day",
@@ -21,19 +28,17 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#f7f7f2",
+  themeColor: "#f4f4f6",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en-GH">
+    <html lang="en-GH" className={roboto.variable}>
       <body>
         <StorefrontProvider>
-          <SiteHeader />
+          <StorefrontChrome />
           <main>{children}</main>
           <SiteFooter />
-          <MobileBottomNav />
-          <CartDrawer />
           <ToastNotice />
         </StorefrontProvider>
       </body>

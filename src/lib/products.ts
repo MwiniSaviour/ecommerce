@@ -1,136 +1,170 @@
 export type ProductCategory = "Tech" | "Home" | "Fashion" | "Beauty" | "Sports";
+
 export type CategoryFilter = "All" | ProductCategory;
+
+export type ProductSeller = {
+  name: string;
+  officialStore?: boolean;
+};
+
+export type ProductDelivery = {
+  express?: boolean;
+};
 
 export type Product = {
   id: string;
+  slug: string;
   name: string;
-  brand: string;
+  description: string;
   category: ProductCategory;
+  brand: string;
   price: number;
   compareAt?: number;
   rating: number;
-  reviewCount: number;
+  stock: number;
   image: string;
-  alt: string;
-  badge?: string;
-  badgeTone?: "coral" | "green" | "dark";
+  badges: string[];
+  seller?: ProductSeller;
+  delivery?: ProductDelivery;
 };
 
 export const products: Product[] = [
   {
     id: "studio-headphones",
-    name: "Studio wireless headphones",
-    brand: "Sound, made simple",
+    slug: "studio-headphones",
+    name: "Wireless Studio Headphones",
+    description: "Over-ear wireless headphones with a padded headband, cushioned earcups and a listening range of 30 hours per charge",
     category: "Tech",
+    brand: "SoundEdge",
     price: 749,
-    compareAt: 980,
-    rating: 4.8,
-    reviewCount: 128,
+    compareAt: 990,
+    rating: 4.6,
+    stock: 24,
     image: "/images/headphones.jpg",
-    alt: "Black over-ear headphones on a bright yellow background",
-    badge: "BESTSELLER",
-    badgeTone: "coral",
+    badges: [],
+    seller: { name: "SoundEdge Ghana", officialStore: true },
+    delivery: { express: true },
   },
   {
     id: "everyday-smartphone",
-    name: "Everyday 5G smartphone · 128 GB",
-    brand: "Your day, upgraded",
+    slug: "everyday-smartphone",
+    name: "Everyday Smartphone 128GB",
+    description: "Compact 6.1-inch smartphone with 128GB storage, dual rear cameras and an all-day battery for calls, photos and apps",
     category: "Tech",
-    price: 2999,
-    compareAt: 3499,
-    rating: 4.7,
-    reviewCount: 84,
+    brand: "GadgetHub",
+    price: 2490,
+    compareAt: 2900,
+    rating: 4.4,
+    stock: 12,
     image: "/images/phone.jpg",
-    alt: "Smartphone resting on a bright desk beside a laptop",
-    badge: "SAVE GH₵500",
-    badgeTone: "green",
+    badges: [],
+    seller: { name: "GadgetHub Accra", officialStore: true },
+    delivery: { express: true },
   },
   {
     id: "work-weekend-laptop",
-    name: "Work + weekend laptop · 14 inch",
-    brand: "Ready when you are",
+    slug: "work-weekend-laptop",
+    name: "Work & Weekend Laptop 14\"",
+    description: "Light 14-inch laptop with a full keyboard, everyday processor and enough ports for a desk setup or a study session",
     category: "Tech",
-    price: 5699,
-    compareAt: 6299,
-    rating: 4.6,
-    reviewCount: 42,
+    brand: "GadgetHub",
+    price: 4850,
+    compareAt: 5300,
+    rating: 4.3,
+    stock: 7,
     image: "/images/laptop.jpg",
-    alt: "Slim laptop open on a tidy wooden desk",
-    badge: "STAFF PICK",
-    badgeTone: "dark",
+    badges: [],
+    seller: { name: "GadgetHub Accra", officialStore: true },
   },
   {
     id: "lightweight-runners",
-    name: "Lightweight everyday runners",
-    brand: "Move in your own way",
+    slug: "lightweight-runners",
+    name: "Lightweight Running Shoes",
+    description: "Breathable mesh running shoes with a cushioned midsole, built for morning jogs and rope skipping",
     category: "Sports",
-    price: 429,
-    compareAt: 559,
-    rating: 4.9,
-    reviewCount: 63,
+    brand: "Stride",
+    price: 420,
+    rating: 4.2,
+    stock: 38,
     image: "/images/sneakers.jpg",
-    alt: "Red running shoe photographed against a dark backdrop",
-    badge: "TRENDING",
-    badgeTone: "coral",
+    badges: [],
+    seller: { name: "Stride Sports" },
   },
   {
     id: "city-tote",
-    name: "The city tote · soft leather look",
-    brand: "A little room for more",
+    slug: "city-tote",
+    name: "Woven City Tote Bag",
+    description: "Roomy woven tote with an inner pocket and magnetic close, wide enough for a laptop, lunch and everything between",
     category: "Fashion",
-    price: 299,
-    compareAt: 399,
-    rating: 4.7,
-    reviewCount: 31,
+    brand: "Adjoa Collection",
+    price: 199,
+    compareAt: 249,
+    rating: 4.5,
+    stock: 15,
     image: "/images/bag.jpg",
-    alt: "Structured brown everyday handbag against a neutral background",
-    badge: "NEW IN",
-    badgeTone: "green",
+    badges: [],
+    seller: { name: "Adjoa Collections" },
+    delivery: { express: true },
   },
   {
     id: "glow-skincare-duo",
-    name: "Glow ritual skincare duo",
-    brand: "A softer start to the day",
+    slug: "glow-skincare-duo",
+    name: "Glow Skincare Duo",
+    description: "Cleanser and lightweight moisturiser from the same line, made for a simple morning and evening routine",
     category: "Beauty",
-    price: 219,
-    compareAt: 280,
+    brand: "Radiant",
+    price: 260,
+    compareAt: 320,
     rating: 4.8,
-    reviewCount: 57,
+    stock: 42,
     image: "/images/skincare.jpg",
-    alt: "Minimal skincare products in white packaging on a warm neutral surface",
-    badge: "GOOD GLOW",
-    badgeTone: "coral",
+    badges: [],
+    seller: { name: "Radiant Lab" },
   },
   {
     id: "classic-watch",
-    name: "Classic mesh steel watch",
-    brand: "Made for every hour",
+    slug: "classic-watch",
+    name: "Classic Quartz Watch",
+    description: "Slim quartz watch with a stainless mesh strap and a 30-minute hour marker, water resistant to 30 metres",
     category: "Fashion",
-    price: 620,
-    compareAt: 770,
-    rating: 4.6,
-    reviewCount: 22,
+    brand: "Timeless",
+    price: 389,
+    rating: 4.1,
+    stock: 9,
     image: "/images/watch.jpg",
-    alt: "Minimal wristwatch with a brushed silver strap on a pale surface",
-    badge: "EASY GIFT",
-    badgeTone: "dark",
+    badges: [],
+    seller: { name: "Timeless GH" },
   },
   {
     id: "countertop-coffee-maker",
-    name: "Countertop coffee maker",
-    brand: "Little luxuries, daily",
+    slug: "countertop-coffee-maker",
+    name: "Countertop Coffee Maker",
+    description: "Compact coffee maker with a reusable filter and drip tray, sized to sit beside a toaster on a kitchen counter",
     category: "Home",
-    price: 720,
-    compareAt: 850,
-    rating: 4.5,
-    reviewCount: 19,
+    brand: "KitchenPro",
+    price: 549,
+    compareAt: 680,
+    rating: 4.4,
+    stock: 21,
     image: "/images/blender.jpg",
-    alt: "Compact coffee maker and grinder on a bright kitchen counter",
-    badge: "HOME FAVOURITE",
-    badgeTone: "green",
+    badges: [],
+    seller: { name: "KitchenPro" },
+    delivery: { express: true },
   },
 ];
 
-export function getProductById(id: string) {
+export function getProductById(id: string): Product | undefined {
   return products.find((product) => product.id === id);
+}
+
+export function getProductBySlug(slug: string): Product | undefined {
+  return products.find((product) => product.slug === slug);
+}
+
+export function discountedProducts(): Product[] {
+  return products.filter(
+    (product) =>
+      product.compareAt !== undefined &&
+      product.compareAt >= product.price * 1.05,
+  );
 }
