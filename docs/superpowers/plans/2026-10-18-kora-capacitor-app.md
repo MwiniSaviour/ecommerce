@@ -324,7 +324,7 @@ jobs:
    - mobile-bottom-nav visible, header doesn't shift layout,
    - `/driver/tasks` and `/seller/products` still render their dedicated shells.
 
-- [ ] Commit: `feat: capacitor back button + safe-area/viewport polish`
+- [x] Commit: `feat: capacitor back button + safe-area/viewport polish`
 
 ## Task 8 — Versioned API seam (`src/lib/api/`)
 
