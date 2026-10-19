@@ -2,7 +2,23 @@
 
 import type { Product, SellerOrder, StoredOrder } from "./types";
 
+import { ordersApi as ordersApiLocal } from "./local";
+
 export { cartApi, authApi } from "./local";
+
+export const ordersApi = {
+  ...ordersApiLocal,
+
+  async getSellerOrders() {
+    if (!token(SELLER_TOKEN_KEY)) return [];
+    return requestJson<SellerOrder[]>("/seller/orders", SELLER_TOKEN_KEY);
+  },
+
+  async getCustomerOrders(): Promise<StoredOrder[]> {
+    if (!token(CUSTOMER_TOKEN_KEY)) return [];
+    return requestJson<StoredOrder[]>("/orders", CUSTOMER_TOKEN_KEY);
+  },
+};
 
 const API_BASE = (
   (typeof process !== "undefined" ? process.env.NEXT_PUBLIC_KORA_API_BASE : undefined) ??
@@ -49,29 +65,6 @@ export const productsApi = {
       (product) =>
         product.compareAt !== undefined &&
         product.compareAt >= product.price * 1.05,
-    );
-  },
-};
-
-export const ordersApi = {
-  async getSellerOrders(): Promise<SellerOrder[]> {
-    if (!token(SELLER_TOKEN_KEY)) return [];
-    return requestJson<SellerOrder[]>("/seller/orders", SELLER_TOKEN_KEY);
-  },
-  async saveSellerOrders(orders: SellerOrder[]): Promise<void> {
-    void orders;
-    throw new Error(
-      "saveSellerOrders is local-only: seller order transitions must be applied through the backend PATCH /v1/seller/orders/:id endpoint, not by replacing the stored list.",
-    );
-  },
-  async getCustomerOrders(): Promise<StoredOrder[]> {
-    if (!token(CUSTOMER_TOKEN_KEY)) return [];
-    return requestJson<StoredOrder[]>("/orders", CUSTOMER_TOKEN_KEY);
-  },
-  async addCustomerOrder(order: StoredOrder): Promise<void> {
-    void order;
-    throw new Error(
-      "addCustomerOrder is local-only: customer orders are created by the backend POST /v1/orders checkout flow, never by re-posting a stored order.",
     );
   },
 };

@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PackageCheck, CircleDot } from "lucide-react";
 import { getProductById } from "@/lib/products";
 import { formatPrice } from "@/lib/format";
-import { readStorageRaw, subscribeStorageKey } from "@/lib/local-store";
+import { ordersApi } from "@/lib/api";
 
 type StoredOrderItem = { id?: unknown; quantity?: unknown };
 
@@ -70,11 +70,23 @@ function parseOrders(raw: string | null): Order[] {
 }
 
 export default function OrdersPage() {
-  const raw = useSyncExternalStore(
-    (callback) => subscribeStorageKey("kora-market-orders-v1", callback),
-    () => readStorageRaw("kora-market-orders-v1"),
-    () => null,
-  );
+  const [raw, setRaw] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const list = await ordersApi.getCustomerOrders();
+        if (!cancelled) setRaw(JSON.stringify(list));
+      } catch {
+        if (!cancelled) setRaw("[]");
+      }
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const orders = useMemo(() => parseOrders(raw), [raw]);
 
   return (

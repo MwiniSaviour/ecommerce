@@ -16,6 +16,7 @@ import { CheckoutOrderSummary } from "@/components/checkout-order-summary";
 import { useStorefront } from "@/components/storefront-provider";
 import { formatPrice } from "@/lib/format";
 import { getProductById } from "@/lib/products";
+import { ordersApi } from "@/lib/api";
 
 export type DeliveryMethod = "delivery" | "pickup";
 export type PaymentMethod = "pod" | "momo" | "card";
@@ -172,14 +173,7 @@ export function CheckoutView() {
                   quantity,
                 })),
               };
-              try {
-                const raw = window.localStorage.getItem(ORDERS_KEY);
-                const parsed: unknown = raw === null ? [] : JSON.parse(raw);
-                const prior = Array.isArray(parsed) ? parsed : [];
-                window.localStorage.setItem(ORDERS_KEY, JSON.stringify([order, ...prior]));
-              } catch {
-                window.localStorage.setItem(ORDERS_KEY, JSON.stringify([order]));
-              }
+              void ordersApi.addCustomerOrder(order);
               clearCart();
               router.push("/checkout/success");
             }, 1200);

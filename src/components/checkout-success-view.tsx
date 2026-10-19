@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { CheckCircle2, Package, Truck } from "lucide-react";
 import { formatPrice } from "@/lib/format";
+import { ordersApi } from "@/lib/api";
 
 type StoredOrder = {
   id: string;
@@ -22,8 +23,6 @@ type StoredOrder = {
     quantity: number;
   }[];
 };
-
-const ORDERS_KEY = "kora-market-orders-v1";
 
 const paymentLabels: Record<StoredOrder["paymentMethod"], string> = {
   pod: "Pay on delivery",
@@ -44,14 +43,10 @@ export function CheckoutSuccessView() {
   useEffect(() => {
     let cancelled = false;
     const read = async () => {
-      await Promise.resolve();
       try {
-        const raw = window.localStorage.getItem(ORDERS_KEY);
-        if (raw !== null) {
-          const parsed: unknown = JSON.parse(raw);
-          if (Array.isArray(parsed) && typeof parsed[0] === "object" && parsed[0] !== null) {
-            if (!cancelled) setOrder(parsed[0] as StoredOrder);
-          }
+        const list = await ordersApi.getCustomerOrders();
+        if (!cancelled && list.length > 0) {
+          setOrder(list[0] as StoredOrder);
         }
       } catch {
         if (!cancelled) setOrder(null);
