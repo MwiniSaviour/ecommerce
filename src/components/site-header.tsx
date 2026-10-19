@@ -38,7 +38,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="pt-[env(safe-area-inset-top)]">
+    <header className="sticky top-0 z-40 bg-white pt-[env(safe-area-inset-top)]">
       <div className="bg-[#B177DA] px-4 py-1 text-center text-[11px] font-medium text-white">
         <Link href="/seller" className="underline-offset-2 hover:underline">
           Grow your business — sell on Kora Market

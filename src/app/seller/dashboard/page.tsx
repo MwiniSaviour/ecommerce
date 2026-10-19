@@ -183,7 +183,8 @@ export default function SellerDashboardPage() {
             View all
           </Link>
         </div>
-        <div className="mt-4 overflow-x-auto">
+        {/* Desktop table; mobile gets a card list (no horizontal scroll). */}
+        <div className="mt-4 hidden overflow-x-auto md:block">
           <table className="w-full min-w-[640px] text-left text-[13px]">
             <thead>
               <tr className="border-b border-border bg-sand/60 text-[11px] uppercase tracking-wide text-forest-light">
@@ -224,6 +225,36 @@ export default function SellerDashboardPage() {
             </tbody>
           </table>
         </div>
+        {/* Mobile card list mirroring the recent-orders table. */}
+        <ul className="mt-4 grid gap-3 md:hidden">
+          {recent.map((order) => (
+            <li key={order.id} className="rounded-[14px] bg-cream p-4">
+              <div className="flex items-center justify-between gap-3">
+                <Link
+                  href={`/seller/orders/detail?id=${order.id}`}
+                  className="font-mono text-[12px] font-bold text-brand hover:underline"
+                >
+                  {order.id}
+                </Link>
+                <span
+                  className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide ${sellerStatusClasses(order.status)}`}
+                >
+                  {sellerStatusLabel(order.status)}
+                </span>
+              </div>
+              <p className="mt-1 text-[12px] text-muted">{orderCreatedLabel(order.created)}</p>
+              <p className="mt-2 text-[13px] text-muted">{itemsSummary(order.items)}</p>
+              <div className="mt-2 flex items-center justify-between gap-3">
+                <p className="text-[12px] text-muted">
+                  {order.customer}
+                  <span className="mx-1">·</span>
+                  {order.city}
+                </p>
+                <p className="text-[13px] font-bold text-ink">{formatPrice(order.total)}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   );

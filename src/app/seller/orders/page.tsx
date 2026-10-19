@@ -216,7 +216,7 @@ export default function SellerOrdersPage() {
           </Link>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-[14px] bg-paper shadow-sm">
+        <div className="hidden overflow-x-auto rounded-[14px] bg-paper shadow-sm md:block">
           <table className="w-full min-w-[720px] text-left text-[13px]">
             <thead>
               <tr className="border-b border-border bg-sand/60 text-[11px] uppercase tracking-wide text-forest-light">
@@ -274,6 +274,49 @@ export default function SellerOrdersPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {visible.length === 0 ? null : (
+        <div className="grid gap-3 md:hidden">
+          {visible.map((order) => (
+            <div key={order.id} className="rounded-[14px] bg-paper p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <Link
+                    href={`/seller/orders/detail?id=${order.id}`}
+                    className="font-mono text-[13px] font-bold text-brand hover:underline"
+                  >
+                    {order.id}
+                  </Link>
+                  <p className="text-[12px] text-muted">{orderCreatedLabel(order.created)}</p>
+                </div>
+                <span
+                  className={`rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide ${sellerStatusClasses(order.status)}`}
+                >
+                  {sellerStatusLabel(order.status)}
+                </span>
+              </div>
+              <p className="mt-2 text-[13px] text-muted">
+                {itemsSummary(order)}
+                <span className="block text-[12px]">
+                  {order.customer} · {order.city}
+                </span>
+              </p>
+              <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+                <p className="text-[14px] font-bold text-ink">{formatPrice(order.total)}</p>
+                <label className="flex items-center gap-2 text-[12px] font-medium text-muted">
+                  <input
+                    type="checkbox"
+                    checked={selected.has(order.id)}
+                    onChange={() => toggleOrder(order.id)}
+                    aria-label={`Select order ${order.id}`}
+                  />
+                  Select
+                </label>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

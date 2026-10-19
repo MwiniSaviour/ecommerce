@@ -229,3 +229,42 @@ First sideload attempt reported "app not installed". Investigation:
 #### Task 9 smoke-test results (2026-10-19)
 
 Results: (pending owner device run)
+
+#### UI fixes round 1 — owner-reported issues (2026-10-19, build v1v3)
+
+Owner testing of the delivered APK reported three issues. Source fixes
+(then one rebuild):
+
+1. **Footer rendered on the driver portal.** `SiteFooter` was a server
+   component with no route awareness, so it loaded on every page
+   including `/seller` and `/driver` shells that ship their own chrome.
+   Fix: `src/components/site-footer.tsx` is now `"use client"`, reads
+   `usePathname()`, and returns `null` when the path starts with
+   `/seller` or `/driver` — the same guard pattern already used by
+   `storefront-chrome.tsx`.
+2. **Seller pages forced horizontal scrolling on phones.** Suspects were
+   `min-w-[720px]` (orders) and `min-w-[640px]` (dashboard recent
+   orders) tables. Fix: kept the tables for md+ (wrapped in
+   `hidden md:block` — desktop layout and testids untouched) and added
+   `md:hidden` card lists that reuse the same state and helpers, so
+   phones get tappable cards instead of intact-of-view tables.
+   `products/page.tsx` was inspected and left unchanged — its table is
+   `w-full` with no min-width and the stock column hides on mobile.
+3. **"Navbar is suspending"** — clarified with the owner: the top
+   navbar scrolls up with the page instead of staying pinned (footnote:
+   not a hang). Fix: `site-header.tsx` root is now
+   `sticky top-0 z-40 bg-white …` (bottom nav was already `fixed`).
+
+Recorded here because the *diagnosis* matters: on web, a `min-w` table
+inside `overflow-x-auto` is a normal desktop pattern, but in a narrow
+WebView it becomes the main UX complaint. The rule going forward: any
+seller/driver table shipped from a desktop-first design needs an
+explicit `md:hidden` card companion or it will scroll on the device.
+
+Rebuild v1v3 (identical pipeline to the Task 9 build):
+- `next build --webpack` → `npx cap sync android` →
+  `gradlew assembleDebug` → `BUILD SUCCESSFUL in 1m45s`.
+- APK delivered: `~/storage/shared/KoraMarket-debug-v1v3.apk`
+  (7,634,238 B), same debug certificate
+  `973793a5…` as v1/v1v2 — installs over the previous APK keeping data.
+- Shadow results pending owner device run.

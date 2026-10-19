@@ -1,9 +1,19 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { helpGroup, aboutGroup, partnerGroup } from "@/lib/navigation";
 
 const payments = ["Mobile Money", "Visa", "Mastercard"];
 
+// Buyer footer; seller and driver portals ship their own shells.
 export function SiteFooter() {
+  const pathname = usePathname();
+
+  if (pathname.startsWith("/seller") || pathname.startsWith("/driver")) {
+    return null;
+  }
+
   return (
     <footer className="bg-forest text-white/80">
       <div className="mx-auto max-w-[1440px] px-4 pb-24 pt-8 sm:px-6 sm:pt-10">
