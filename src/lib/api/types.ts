@@ -8,3 +8,6 @@ export type { SellerOrder, SellerOrderStatus, SellerOrderMethod } from "@/lib/se
 export type { SellerSession } from "@/lib/seller-auth";
 export type { DriverProfile, DriverTask, DriverTaskStatus } from "@/lib/driver-tasks";
 export type { StoredOrder, StoredOrderLine } from "@/components/checkout-view";
+
+// Customer demo session: email-only, device-local.
+export type AccountSession = { email: string } | null;

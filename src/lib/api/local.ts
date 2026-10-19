@@ -6,7 +6,15 @@
 
 "use client";
 
-import type { CartItem, DriverProfile, Product, SellerOrder, SellerSession, StoredOrder } from "./types";
+import type {
+  AccountSession,
+  CartItem,
+  DriverProfile,
+  Product,
+  SellerOrder,
+  SellerSession,
+  StoredOrder,
+} from "./types";
 import { getProductById, getProductBySlug, discountedProducts, products } from "@/lib/products";
 import {
   SELLER_AUTH_KEY,
@@ -26,6 +34,10 @@ const CART_KEY = "kora-market-cart-v1";
 // ORDERS_STORAGE_KEY mirrors ORDERS_KEY in src/components/checkout-view.tsx
 // so customer orders land in the same storage entry checkout has always used.
 const ORDERS_STORAGE_KEY = "kora-market-orders-v1";
+
+// ACCOUNT_SESSION_KEY is the customer demo session written by
+// src/components/account-auth-panel.tsx (kora-market-auth-v1).
+const ACCOUNT_SESSION_KEY = "kora-market-auth-v1";
 
 export const productsApi = {
   async list(): Promise<Product[]> {
@@ -131,6 +143,18 @@ export const ordersApi = {
   },
 };
 
+function parseAccountSession(raw: string | null): AccountSession {
+  if (raw === null) return null;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (typeof parsed !== "object" || parsed === null) return null;
+    const session = parsed as Record<string, unknown>;
+    return typeof session.email === "string" && session.email.length > 0 ? { email: session.email } : null;
+  } catch {
+    return null;
+  }
+}
+
 export const authApi = {
   async getSellerSession(): Promise<SellerSession | null> {
     return parseSellerSession(readStorageRaw(SELLER_AUTH_KEY));
@@ -149,5 +173,21 @@ export const authApi = {
   },
   async clearDriverProfile(): Promise<void> {
     writeStorage(DRIVER_PROFILE_KEY, null);
+  },
+  async getAccountSession(): Promise<AccountSession> {
+    return parseAccountSession(readStorageRaw(ACCOUNT_SESSION_KEY));
+  },
+  async setAccountSession(session: AccountSession): Promise<void> {
+    // Mirrors the panel's previous write: null clears the storage entry,
+    // and writeStorage notifies same-tab subscribers, so panels re-render.
+    writeStorage(ACCOUNT_SESSION_KEY, session === null ? null : JSON.stringify(session));
+  },
+  async clearAccountSession(): Promise<void> {
+    writeStorage(ACCOUNT_SESSION_KEY, null);
+  },
+  subscribeAccountSession(callback: (session: AccountSession) => void): () => void {
+    // subscribeStorageKey only observes change events, not values, so the
+    // fresh session is parsed on every notification before it reaches callers.
+    return subscribeStorageKey(ACCOUNT_SESSION_KEY, () => callback(parseAccountSession(readStorageRaw(ACCOUNT_SESSION_KEY))));
   },
 };

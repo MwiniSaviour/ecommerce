@@ -1,33 +1,42 @@
 "use client";
 
-import { useState, useMemo, useSyncExternalStore } from "react";
-import { readStorageRaw, subscribeStorageKey, writeStorage } from "@/lib/local-store";
+import { useEffect, useState } from "react";
+import { authApi } from "@/lib/api";
+import type { AccountSession } from "@/lib/api/types";
 
-export type AccountSession = { email: string } | null;
+export type { AccountSession } from "@/lib/api/types";
 
-function parseAccountSession(raw: string | null): AccountSession {
-  if (raw === null) return null;
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (typeof parsed !== "object" || parsed === null) return null;
-    const session = parsed as Record<string, unknown>;
-    return typeof session.email === "string" && session.email.length > 0 ? { email: session.email } : null;
-  } catch {
-    return null;
-  }
-}
-
+// The session lives behind the authApi seam: the hook fetches the parsed
+// session once on mount and refreshes through subscribeAccountSession
+// whenever the storage entry changes, instead of reading localStorage directly.
 export function useAccountSession(): AccountSession {
-  const raw = useSyncExternalStore(
-    (callback) => subscribeStorageKey("kora-market-auth-v1", callback),
-    () => readStorageRaw("kora-market-auth-v1"),
-    () => null,
-  );
-  return useMemo(() => parseAccountSession(raw), [raw]);
+  const [session, setSessionState] = useState<AccountSession>(null);
+
+  useEffect(() => {
+    let active = true;
+    const load = () => {
+      authApi
+        .getAccountSession()
+        .then((next) => {
+          if (active) setSessionState(next);
+        })
+        .catch(() => {
+          if (active) setSessionState(null);
+        });
+    };
+    load();
+    const unsubscribe = authApi.subscribeAccountSession(load);
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, []);
+
+  return session;
 }
 
 export function setSession(session: AccountSession) {
-  writeStorage("kora-market-auth-v1", session === null ? null : JSON.stringify(session));
+  void authApi.setAccountSession(session);
 }
 
 type AuthPanelProps = {
