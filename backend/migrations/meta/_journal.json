@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1750000000000,
+      "tag": "0000_good_quentin_quire",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1760857600000,
+      "tag": "0001_order_seller_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792391348633,
+      "tag": "0002_add_driver_task_order_id",
+      "breakpoints": true
+    }
+  ]
+}

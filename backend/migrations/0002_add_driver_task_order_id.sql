@@ -1,0 +1,2 @@
+ALTER TABLE "driver_tasks" ADD COLUMN "order_id" uuid;--> statement-breakpoint
+ALTER TABLE "driver_tasks" ADD CONSTRAINT "driver_tasks_order_id_orders_id_fk" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE set null ON UPDATE no action;

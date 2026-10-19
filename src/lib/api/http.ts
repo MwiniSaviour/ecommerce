@@ -1,85 +1,77 @@
-// Versioned api seam — http adapter (Task 8 of 2026-10-18 plan).
-// Backend-phase placeholder: every method throws until a real API exists.
-// Signatures must stay identical to the local adapter in local.ts so any
-// import site can switch between them by changing one file name.
-
 "use client";
 
-import type { CartItem, DriverProfile, Product, SellerOrder, SellerSession, StoredOrder } from "./types";
+import type { Product, SellerOrder, StoredOrder } from "./types";
 
-const notImplemented = "http adapter not implemented — backend phase";
+export { cartApi, authApi } from "./local";
+
+const API_BASE = (
+  (typeof process !== "undefined" ? process.env.NEXT_PUBLIC_KORA_API_BASE : undefined) ??
+  "http://localhost:4001/v1"
+).replace(/\/+$/, "");
+
+const SELLER_TOKEN_KEY = "kora-market-seller-token-v1";
+const CUSTOMER_TOKEN_KEY = "kora-market-customer-token-v1";
+
+function token(key: string): string | null {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem(key);
+}
+
+async function requestJson<T>(path: string, tokenKey?: string): Promise<T> {
+  const headers = new Headers();
+  const value = tokenKey ? token(tokenKey) : null;
+  if (value) headers.set("Authorization", `Bearer ${value}`);
+  const response = await fetch(`${API_BASE}${path}`, { headers });
+  if (!response.ok) throw new Error(`GET ${path} failed with ${response.status}`);
+  return (await response.json()) as T;
+}
+
+async function fetchProducts(): Promise<Product[]> {
+  const data = await requestJson<{ products: Product[] }>("/products");
+  return data.products;
+}
 
 export const productsApi = {
   async list(): Promise<Product[]> {
-    throw new Error(notImplemented);
+    return fetchProducts();
   },
   async get(id: string): Promise<Product | undefined> {
-    throw new Error(notImplemented);
+    return (await fetchProducts()).find((product) => product.id === id);
   },
   async bySlug(slug: string): Promise<Product | undefined> {
-    throw new Error(notImplemented);
+    const response = await fetch(`${API_BASE}/products/${encodeURIComponent(slug)}`);
+    if (response.status === 404) return undefined;
+    if (!response.ok) throw new Error(`GET /products/${slug} failed with ${response.status}`);
+    return (await response.json()) as Product;
   },
   async discounted(): Promise<Product[]> {
-    throw new Error(notImplemented);
-  },
-};
-
-export const cartApi = {
-  async get(): Promise<CartItem[]> {
-    throw new Error(notImplemented);
-  },
-  async set(items: CartItem[]): Promise<void> {
-    throw new Error(notImplemented);
-  },
-  async add(id: string, quantity = 1): Promise<void> {
-    throw new Error(notImplemented);
-  },
-  async updateQuantity(id: string, quantity: number): Promise<void> {
-    throw new Error(notImplemented);
-  },
-  async remove(id: string): Promise<void> {
-    throw new Error(notImplemented);
-  },
-  async clear(): Promise<void> {
-    throw new Error(notImplemented);
-  },
-  subscribe(_callback: (items: CartItem[]) => void): () => void {
-    throw new Error(notImplemented);
+    return (await fetchProducts()).filter(
+      (product) =>
+        product.compareAt !== undefined &&
+        product.compareAt >= product.price * 1.05,
+    );
   },
 };
 
 export const ordersApi = {
   async getSellerOrders(): Promise<SellerOrder[]> {
-    throw new Error(notImplemented);
+    if (!token(SELLER_TOKEN_KEY)) return [];
+    return requestJson<SellerOrder[]>("/seller/orders", SELLER_TOKEN_KEY);
   },
   async saveSellerOrders(orders: SellerOrder[]): Promise<void> {
-    throw new Error(notImplemented);
+    void orders;
+    throw new Error(
+      "saveSellerOrders is local-only: seller order transitions must be applied through the backend PATCH /v1/seller/orders/:id endpoint, not by replacing the stored list.",
+    );
   },
   async getCustomerOrders(): Promise<StoredOrder[]> {
-    throw new Error(notImplemented);
+    if (!token(CUSTOMER_TOKEN_KEY)) return [];
+    return requestJson<StoredOrder[]>("/orders", CUSTOMER_TOKEN_KEY);
   },
   async addCustomerOrder(order: StoredOrder): Promise<void> {
-    throw new Error(notImplemented);
-  },
-};
-
-export const authApi = {
-  async getSellerSession(): Promise<SellerSession | null> {
-    throw new Error(notImplemented);
-  },
-  async setSellerSession(session: SellerSession): Promise<void> {
-    throw new Error(notImplemented);
-  },
-  async clearSellerSession(): Promise<void> {
-    throw new Error(notImplemented);
-  },
-  async getDriverProfile(): Promise<DriverProfile | null> {
-    throw new Error(notImplemented);
-  },
-  async setDriverProfile(profile: DriverProfile): Promise<void> {
-    throw new Error(notImplemented);
-  },
-  async clearDriverProfile(): Promise<void> {
-    throw new Error(notImplemented);
+    void order;
+    throw new Error(
+      "addCustomerOrder is local-only: customer orders are created by the backend POST /v1/orders checkout flow, never by re-posting a stored order.",
+    );
   },
 };
