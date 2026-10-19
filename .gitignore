@@ -8,6 +8,7 @@
 /out/
 /build/
 
+
 # generated TypeScript cache
 *.tsbuildinfo
 
@@ -29,3 +30,12 @@ pnpm-debug.log*
 dev.log
 public/__a2debug.html
 public/__a2seed.html
+
+# Capacitor synced web payload (build artifact, re-served by cap sync from out/)
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.plugins.json
+android/local.properties
+android/.gradle/
+android/build/
+android/app/build/
+android/capacitor-cordova-android-plugins/
