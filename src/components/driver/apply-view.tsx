@@ -2,16 +2,10 @@
 
 /* DESIGN DIRECTION: not Jumia-verified — assumed */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2, ClipboardList, Clock3, FileText, Phone, Truck, UserRound } from "lucide-react";
-import {
-  DRIVER_PROFILE_KEY,
-  parseDriverProfile,
-  writeDriverProfile,
-  type DriverProfile,
-} from "@/lib/driver-tasks";
-import { subscribeStorageKey, readStorageRaw } from "@/lib/local-store";
-import { useSyncExternalStore } from "react";
+import type { DriverProfile } from "@/lib/driver-tasks";
+import { authApi } from "@/lib/api";
 import { useStorefront } from "@/components/storefront-provider";
 
 const VEHICLES = ["Motorbike", "Tricycle", "Van", "Car"];
@@ -40,12 +34,27 @@ const inputClass =
 
 export function ApplyView() {
   const storefront = useStorefront();
-  const profileVersion = useSyncExternalStore(
-    (callback) => subscribeStorageKey(DRIVER_PROFILE_KEY, callback),
-    () => readStorageRaw(DRIVER_PROFILE_KEY),
-    () => null,
-  );
-  const profile = parseDriverProfile(profileVersion);
+  const [profile, setProfile] = useState<DriverProfile | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    const load = () => {
+      authApi
+        .getDriverProfile()
+        .then((next) => {
+          if (active) setProfile(next);
+        })
+        .catch(() => {
+          if (active) setProfile(null);
+        });
+    };
+    load();
+    const unsubscribe = authApi.subscribeDriverProfile(load);
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, []);
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -77,13 +86,13 @@ export function ApplyView() {
       submittedAt: Date.now(),
       approvedAt: null,
     };
-    writeDriverProfile(next);
+    void authApi.setDriverProfile(next);
     storefront.showToast("Application received");
   }
 
   function demoApprove() {
     if (!profile) return;
-    writeDriverProfile({ ...profile, status: "approved", approvedAt: Date.now() });
+    void authApi.setDriverProfile({ ...profile, status: "approved", approvedAt: Date.now() });
   }
 
   if (submitted) {

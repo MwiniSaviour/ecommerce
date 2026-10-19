@@ -6,11 +6,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { AlertTriangle, ArrowRight, Check, MapPin, Package, Phone, X } from "lucide-react";
+import { authApi } from "@/lib/api";
 import {
   FAILED_DELIVERY_REASONS,
   getDriverTaskById,
-  getDriverTasks,
-  saveDriverTasks,
   updateTaskStatus,
   type DriverTask,
 } from "@/lib/driver-tasks";
@@ -68,7 +67,23 @@ function Timeline({ task }: { task: DriverTask }) {
 export function JobView() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id") ?? "";
-  const [tasks, setTasks] = useState<DriverTask[]>(() => getDriverTasks());
+  const [tasks, setTasks] = useState<DriverTask[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    authApi
+      .getDriverTasks()
+      .then((fresh) => {
+        if (active) setTasks(fresh);
+      })
+      .catch(() => {
+        if (active) setTasks([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const task = getDriverTaskById(id, tasks);
   const [offerExpired, setOfferExpired] = useState(false);
   const [declined, setDeclined] = useState(false);
@@ -77,7 +92,7 @@ export function JobView() {
   function updateCurrent(status: DriverTask["status"], label: string) {
     if (!task) return;
     const updated = tasks.map((entry) => (entry.id === id ? updateTaskStatus(entry, status, label) : entry));
-    saveDriverTasks(updated);
+    void authApi.setDriverTasks(updated);
     setTasks(updated);
   }
 
@@ -152,7 +167,7 @@ export function JobView() {
           <button
             type="button"
             onClick={() => {
-              saveDriverTasks(tasks.filter((entry) => entry.id !== id));
+              void authApi.setDriverTasks(tasks.filter((entry) => entry.id !== id));
               setDeclined(true);
             }}
             className={`mt-2 ${secondaryCtaClass}`}

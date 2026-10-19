@@ -18,10 +18,9 @@ import {
   Wallet,
   X,
 } from "lucide-react";
+import { authApi } from "@/lib/api";
 import { useStorefront } from "@/components/storefront-provider";
 import { clearSellerSession, useSellerSession } from "@/lib/seller-auth";
-import { readStorageRaw } from "@/lib/local-store";
-import { SELLER_AUTH_KEY } from "@/lib/seller-auth";
 import { useSellerOrders } from "@/lib/seller-orders";
 
 const NAV_ITEMS = [
@@ -61,10 +60,20 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
   useEffect(() => {
     // During hydration the store serves the server snapshot (null), so a
     // client-side session can appear a tick after the first commit. Redirect
-    // only when the actual storage confirms there is no session.
+    // only when an async storage read confirms there is no session.
+    let active = true;
     if (session || isSignIn) return;
-    if (readStorageRaw(SELLER_AUTH_KEY) !== null) return;
-    router.replace("/seller/sign-in");
+    authApi
+      .getSellerSession()
+      .then((storageSession) => {
+        if (active && storageSession === null) {
+          router.replace("/seller/sign-in");
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
   }, [session, isSignIn, router]);
 
   if (isSignIn) {

@@ -4,10 +4,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Bike, Home, Trophy, UserRound } from "lucide-react";
-import { DRIVER_PROFILE_KEY, parseDriverProfile } from "@/lib/driver-tasks";
-import { readStorageRaw, subscribeStorageKey } from "@/lib/local-store";
+import { authApi } from "@/lib/api";
+import type { DriverProfile } from "@/lib/api/types";
 
 const TABS = [
   { href: "/driver/home", label: "Home", icon: Home },
@@ -16,15 +16,30 @@ const TABS = [
   { href: "/driver/account", label: "Account", icon: UserRound },
 ];
 
-type DriverProfileRaw = ReturnType<typeof parseDriverProfile>;
+function useDriverProfileWatch(): DriverProfile | null {
+  const [profile, setProfile] = useState<DriverProfile | null>(null);
 
-function useDriverProfileWatch(): DriverProfileRaw {
-  const raw = useSyncExternalStore(
-    (callback) => subscribeStorageKey(DRIVER_PROFILE_KEY, callback),
-    () => readStorageRaw(DRIVER_PROFILE_KEY),
-    () => null,
-  );
-  return parseDriverProfile(raw);
+  useEffect(() => {
+    let active = true;
+    const load = () => {
+      authApi
+        .getDriverProfile()
+        .then((next) => {
+          if (active) setProfile(next);
+        })
+        .catch(() => {
+          if (active) setProfile(null);
+        });
+    };
+    load();
+    const unsubscribe = authApi.subscribeDriverProfile(load);
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, []);
+
+  return profile;
 }
 
 export function DriverShell({ children }: { children: ReactNode }) {

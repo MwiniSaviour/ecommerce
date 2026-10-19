@@ -2,16 +2,15 @@
 
 /* DESIGN DIRECTION: not Jumia-verified — assumed */
 
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { BadgeAlert, Camera, Check, KeyRound, PackageCheck, PenLine } from "lucide-react";
 import { useStorefront } from "@/components/storefront-provider";
+import { authApi } from "@/lib/api";
 import {
   FAILED_DELIVERY_REASONS,
   getDriverTaskById,
-  getDriverTasks,
-  saveDriverTasks,
   updateTaskStatus,
   type DriverTask,
 } from "@/lib/driver-tasks";
@@ -26,7 +25,23 @@ export function DropoffView() {
   const id = searchParams.get("id") ?? "";
   const router = useRouter();
   const { showToast } = useStorefront();
-  const [tasks, setTasks] = useState<DriverTask[]>(() => getDriverTasks());
+  const [tasks, setTasks] = useState<DriverTask[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    authApi
+      .getDriverTasks()
+      .then((fresh) => {
+        if (active) setTasks(fresh);
+      })
+      .catch(() => {
+        if (active) setTasks([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const task = getDriverTaskById(id, tasks);
   const [tab, setTab] = useState<ProofTab>("photo");
   const [photoCaptured, setPhotoCaptured] = useState(false);
@@ -205,7 +220,7 @@ export function DropoffView() {
           const updated = tasks.map((entry) =>
             entry.id === id ? updateTaskStatus(entry, "delivered", "Delivered — proof of delivery confirmed") : entry,
           );
-          saveDriverTasks(updated);
+          void authApi.setDriverTasks(updated);
           setTasks(updated);
           showToast(task.payment === "COD" ? `Collect ${formatGhc(task.codAmount ?? 0)} from the customer` : "Delivery confirmed");
           router.push("/driver/earnings");
@@ -239,7 +254,7 @@ export function DropoffView() {
                     const updated = tasks.map((entry) =>
                       entry.id === id ? updateTaskStatus(entry, "failed", reason) : entry,
                     );
-                    saveDriverTasks(updated);
+                    void authApi.setDriverTasks(updated);
                     setTasks(updated);
                     setShowReasons(false);
                     router.push(`/driver/job?id=${id}`);

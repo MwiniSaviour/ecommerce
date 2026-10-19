@@ -2,17 +2,35 @@
 
 /* DESIGN DIRECTION: not Jumia-verified — assumed */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Banknote, CalendarClock, CheckCircle2, Smartphone, XCircle } from "lucide-react";
-import { getDriverTasks, sortTasksNewestFirst } from "@/lib/driver-tasks";
+import { authApi } from "@/lib/api";
+import { sortTasksNewestFirst, type DriverTask } from "@/lib/driver-tasks";
 import { formatGhc, formatTaskDay, pickupCode, relativeAge } from "@/components/driver/driver-ui";
 
 type WeekKey = "this-week" | "last-week";
 
 export function EarningsView() {
   const [week, setWeek] = useState<WeekKey>("this-week");
-  const tasks = useMemo(() => sortTasksNewestFirst(getDriverTasks()), []);
+  const [rawTasks, setRawTasks] = useState<DriverTask[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    authApi
+      .getDriverTasks()
+      .then((fresh) => {
+        if (active) setRawTasks(fresh);
+      })
+      .catch(() => {
+        if (active) setRawTasks([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const tasks = useMemo(() => sortTasksNewestFirst(rawTasks), [rawTasks]);
 
   const now = new Date();
   const mondayThisWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));

@@ -2,17 +2,11 @@
 
 /* DESIGN DIRECTION: not Jumia-verified — assumed */
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, FileCheck2, LogOut, Phone, Plus } from "lucide-react";
-import {
-  DRIVER_PROFILE_KEY,
-  clearDriverData,
-  parseDriverProfile,
-  getDriverAvailability,
-  writeDriverAvailability,
-} from "@/lib/driver-tasks";
-import { readStorageRaw, subscribeStorageKey } from "@/lib/local-store";
+import { authApi } from "@/lib/api";
+import type { DriverProfile } from "@/lib/api/types";
 
 const HELP_ITEMS = [
   {
@@ -33,17 +27,45 @@ const DOCS = ["Ghana Card — verified", "Driver licence — verified", "Roadwor
 
 export function AccountView() {
   const router = useRouter();
-  const rawProfile = useSyncExternalStore(
-    (callback) => subscribeStorageKey(DRIVER_PROFILE_KEY, callback),
-    () => readStorageRaw(DRIVER_PROFILE_KEY),
-    () => null,
-  );
-  const profile = parseDriverProfile(rawProfile);
+  const [profile, setProfile] = useState<DriverProfile | null>(null);
   const [open, setOpen] = useState<string | null>(HELP_ITEMS[0]?.q ?? null);
-  const online = getDriverAvailability() === "online";
+  const [online, setOnline] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const loadProfile = () => {
+      authApi
+        .getDriverProfile()
+        .then((next) => {
+          if (active) setProfile(next);
+        })
+        .catch(() => {
+          if (active) setProfile(null);
+        });
+    };
+    const loadAvailability = () => {
+      authApi
+        .getDriverAvailability()
+        .then((next) => {
+          if (active) setOnline(next === "online");
+        })
+        .catch(() => {
+          if (active) setOnline(false);
+        });
+    };
+    loadProfile();
+    loadAvailability();
+    const unsubscribeProfile = authApi.subscribeDriverProfile(loadProfile);
+    const unsubscribeAvailability = authApi.subscribeDriverAvailability(loadAvailability);
+    return () => {
+      active = false;
+      unsubscribeProfile();
+      unsubscribeAvailability();
+    };
+  }, []);
 
   function handleSignOut() {
-    clearDriverData();
+    void authApi.clearDriverData();
     router.push("/driver");
   }
 
@@ -75,7 +97,7 @@ export function AccountView() {
         </div>
         <button
           type="button"
-          onClick={() => writeDriverAvailability(online ? "offline" : "online")}
+          onClick={() => void authApi.setDriverAvailability(online ? "offline" : "online")}
           aria-pressed={online}
           className={`motion-safe:transition min-h-11 rounded-[99px] px-4 text-[12px] font-bold ${
             online ? "bg-ok text-white hover:opacity-90" : "border border-border text-muted hover:text-ink"

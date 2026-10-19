@@ -10,6 +10,7 @@ import type {
   AccountSession,
   CartItem,
   DriverProfile,
+  DriverTask,
   Product,
   SellerOrder,
   SellerSession,
@@ -23,7 +24,19 @@ import {
   clearSellerSession as wipeSellerSession,
 } from "@/lib/seller-auth";
 import { readSellerOrders, saveSellerOrders } from "@/lib/seller-orders";
-import { DRIVER_PROFILE_KEY, getDriverProfile, writeDriverProfile } from "@/lib/driver-tasks";
+import {
+  DRIVER_PROFILE_KEY,
+  DRIVER_AVAILABILITY_KEY,
+  clearDriverData as wipeDriverData,
+  getDriverAvailability as readDriverAvailability,
+  getDriverProfile,
+  getDriverTasks as readDriverTasks,
+  parseDriverAvailability,
+  parseDriverProfile,
+  saveDriverTasks as storeDriverTasks,
+  writeDriverAvailability as writeDriverAvailabilityRaw,
+  writeDriverProfile,
+} from "@/lib/driver-tasks";
 import { readStorageRaw, subscribeStorageKey, writeStorage } from "@/lib/local-store";
 
 // CART_KEY mirrors CART_STORAGE_KEY in src/components/storefront-provider.tsx
@@ -189,5 +202,29 @@ export const authApi = {
     // subscribeStorageKey only observes change events, not values, so the
     // fresh session is parsed on every notification before it reaches callers.
     return subscribeStorageKey(ACCOUNT_SESSION_KEY, () => callback(parseAccountSession(readStorageRaw(ACCOUNT_SESSION_KEY))));
+  },
+  subscribeSellerSession(callback: (session: SellerSession | null) => void): () => void {
+    return subscribeStorageKey(SELLER_AUTH_KEY, () => callback(parseSellerSession(readStorageRaw(SELLER_AUTH_KEY))));
+  },
+  async getDriverAvailability(): Promise<"online" | "offline"> {
+    return readDriverAvailability();
+  },
+  async setDriverAvailability(value: "online" | "offline"): Promise<void> {
+    writeDriverAvailabilityRaw(value);
+  },
+  async clearDriverData(): Promise<void> {
+    wipeDriverData();
+  },
+  async getDriverTasks(): Promise<DriverTask[]> {
+    return readDriverTasks();
+  },
+  async setDriverTasks(tasks: DriverTask[]): Promise<void> {
+    storeDriverTasks(tasks);
+  },
+  subscribeDriverProfile(callback: (profile: DriverProfile | null) => void): () => void {
+    return subscribeStorageKey(DRIVER_PROFILE_KEY, () => callback(parseDriverProfile(readStorageRaw(DRIVER_PROFILE_KEY))));
+  },
+  subscribeDriverAvailability(callback: (value: "online" | "offline") => void): () => void {
+    return subscribeStorageKey(DRIVER_AVAILABILITY_KEY, () => callback(parseDriverAvailability(readStorageRaw(DRIVER_AVAILABILITY_KEY))));
   },
 };

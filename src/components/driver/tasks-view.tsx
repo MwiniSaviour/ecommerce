@@ -2,9 +2,11 @@
 
 /* DESIGN DIRECTION: not Jumia-verified — assumed */
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, MapPin } from "lucide-react";
-import { getDriverTasks, sortTasksNewestFirst, type DriverTask } from "@/lib/driver-tasks";
+import { authApi } from "@/lib/api";
+import { sortTasksNewestFirst, type DriverTask } from "@/lib/driver-tasks";
 import { StatusBadge, taskCardClass, relativeAge, formatGhc } from "@/components/driver/driver-ui";
 
 function TaskRow({ task }: { task: DriverTask }) {
@@ -37,7 +39,24 @@ function TaskRow({ task }: { task: DriverTask }) {
 }
 
 export function TasksView() {
-  const tasks = sortTasksNewestFirst(getDriverTasks());
+  const [rawTasks, setRawTasks] = useState<DriverTask[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    authApi
+      .getDriverTasks()
+      .then((fresh) => {
+        if (active) setRawTasks(fresh);
+      })
+      .catch(() => {
+        if (active) setRawTasks([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const tasks = sortTasksNewestFirst(rawTasks);
   const offers = tasks.filter((task) => task.status === "offered");
   const active = tasks.filter((task) => ["accepted", "picked-up", "en-route"].includes(task.status));
   const completed = tasks.filter((task) => ["delivered", "failed", "returned"].includes(task.status));

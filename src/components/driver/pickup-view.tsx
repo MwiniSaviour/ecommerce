@@ -2,14 +2,13 @@
 
 /* DESIGN DIRECTION: not Jumia-verified — assumed */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Check, ClipboardCheck, KeyRound } from "lucide-react";
+import { authApi } from "@/lib/api";
 import {
   getDriverTaskById,
-  getDriverTasks,
-  saveDriverTasks,
   updateTaskStatus,
   type DriverTask,
 } from "@/lib/driver-tasks";
@@ -24,7 +23,23 @@ const CHECKLIST = [
 export function PickupView() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id") ?? "";
-  const [tasks, setTasks] = useState<DriverTask[]>(() => getDriverTasks());
+  const [tasks, setTasks] = useState<DriverTask[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    authApi
+      .getDriverTasks()
+      .then((fresh) => {
+        if (active) setTasks(fresh);
+      })
+      .catch(() => {
+        if (active) setTasks([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const task = getDriverTaskById(id, tasks);
   const [checked, setChecked] = useState<boolean[]>([false, false, false]);
 
@@ -144,7 +159,7 @@ export function PickupView() {
           const updated = tasks.map((entry) =>
             entry.id === id ? updateTaskStatus(entry, "picked-up", `Package picked up at ${task.pickup.hub}`) : entry,
           );
-          saveDriverTasks(updated);
+          void authApi.setDriverTasks(updated);
           setTasks(updated);
         }}
         className={`${confirmClass} ${allChecked ? "bg-brand hover:opacity-90" : "cursor-not-allowed bg-sand text-muted"}`}
