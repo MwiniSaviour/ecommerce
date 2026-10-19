@@ -284,7 +284,7 @@ jobs:
 - Sanity-check the generated density buckets exist under
   `android/app/src/main/res/mipmap-*` and `drawable-*`.
 
-- [ ] Commit: `feat: kora market app icon and splash`
+- [x] Commit: `feat: kora market app icon and splash`
 
 ## Task 7 — Native-shell polish (back button + safe-area + viewport)
 
