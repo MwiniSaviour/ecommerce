@@ -352,7 +352,7 @@ code adopts the seam; existing modules keep working until they need it.
   live — note them in DEBUGGING-NOTES.md as pending migration, they are NOT
   this phase's work).
 
-- [ ] Commit: `feat: versioned api seam (local adapter + http stub)`
+- [x] Commit: `feat: versioned api seam (local adapter + http stub)`
 
 ## Task 9 — Smoke test on device + close-out
 
