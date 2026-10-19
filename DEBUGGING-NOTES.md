@@ -84,3 +84,52 @@ once before blaming code that allegedly "hangs".
 ## Dev server silent death (Oct 2026)
 - `next dev` died between sessions with no entry in dev.log; curl returned 000 and no PID via /proc scan.
 - Fix: per-session restart `nohup node node_modules/next/dist/bin/next dev --webpack -p 3001 >> dev.log 2>&1 & disown`; always assume the server is down before verifying output.
+
+## Termux Android build spike — SUCCESS (Oct 2026, Task 5)
+
+**Outcome: native aarch64 Android builds work on-device.** Local build is now
+primary; the GitHub Actions debug-apk workflow (`.github/workflows/android-debug.yml`)
+stays as fallback for clean-room verification.
+
+### One-time toolchain setup
+
+1. `pkg install openjdk-21` → `java -version` reports 21.0.12. (`pkg install
+   gradle` was also run; irrelevant in practice — the wrapper drives Gradle 8.14.3.)
+2. Stage aarch64 Android build tools (no official x86_64 works here, no Docker):
+   `lzhiyong/android-sdk-tools` release tag `35.0.2` unzipped into
+   `$PREFIX/tmp/opencode/android-sdk-tools/` (replace this each session if
+   Termux purges `$PREFIX/tmp`):
+
+   ```
+   $PREFIX/tmp/opencode/android-sdk-tools/
+     licenses/          # only files needed: android-sdk-license + preview
+     platforms/android-36/
+     build-tools/35.0.0/   # AGP auto-installs the x86_64 jars; we only need:
+                           # aapt2, aapt, aidl, zipalign, dexdump, split-select
+                           # (aarch64, from the repo's release 35.0.2) + d8/apksigner jars
+     platform-tools/
+     others/veridex/
+   ```
+
+   License files are newline-terminated SHA-1 hashes (public Google values):
+   `licenses/android-sdk-license` contains
+   `8933bad161af4178b1185d1a37fbf41ea5269c55`,
+   `d56f5187479451eabf01fb78af6dfcb131a6481e`,
+   `24333f8a63b6825ea9c5514f83c2829b004d1fee`;
+   `licenses/android-sdk-preview-license` contains
+   `84831b9409646a918e30573bab4c9c91346d8abd`. Without these AGP refuses to
+   accept (and cannot download) the x86_64 toolkits it expects.
+3. Licenses drop-in → run the wrapper; errors then point at each missing piece.
+   Iterating locally beat trying to fake a full `sdkmanager` first.
+
+### The one gotcha: aapt2 override location
+
+- `android.aapt2FromMavenOverride=/…/aapt2` **must go in
+  `~/.gradle/gradle.properties` (user-level, untracked)** — putting it in
+  `android/local.properties` is *ignored* (property read from user props only)
+  and the aapt2 daemon still tries the x86_64 Maven binary.
+
+Verified end to end: `cd android && ./gradlew assembleDebug --console=plain`
+→ `BUILD SUCCESSFUL in 4m52s` (side-off, cold start; subsequent builds are
+cached and fast). `android/app/build/outputs/apk/debug/app-debug.apk` produced,
+7.6 MB, and `npx cap sync android` (per Task 4) stays the sync step before it.

@@ -271,7 +271,8 @@ jobs:
    If it works, add the local build steps to that note and make local build
    primary; otherwise delete leftover toolchain bits and rely on Task 4.
 
-- [ ] Commit: whatever the outcome note says (`docs: termux android spike outcome`)
+- [x] Commit: whatever the outcome note says (`docs: termux android spike outcome`)
+  — outcome: SUCCESS, local build primary (see `DEBUGGING-NOTES.md`)
 
 ## Task 6 — App icon + splash
 
