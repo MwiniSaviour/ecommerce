@@ -17,7 +17,7 @@ export const SELLER_DEMO_ACCOUNT = {
   password: "KoraDemo2026",
 };
 
-function parseSellerSession(value: string | null): SellerSession | null {
+export function parseSellerSession(value: string | null): SellerSession | null {
   if (!value) return null;
   try {
     const parsed = JSON.parse(value) as Partial<SellerSession> | null;

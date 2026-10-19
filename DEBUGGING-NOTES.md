@@ -133,3 +133,26 @@ Verified end to end: `cd android && ./gradlew assembleDebug --console=plain`
 → `BUILD SUCCESSFUL in 4m52s` (side-off, cold start; subsequent builds are
 cached and fast). `android/app/build/outputs/apk/debug/app-debug.apk` produced,
 7.6 MB, and `npx cap sync android` (per Task 4) stays the sync step before it.
+
+### Pending after Task 8 (versioned api seam)
+
+`src/lib/api/` (Task 8, 2026-10-18 plan) introduces `productsApi`, `cartApi`,
+`ordersApi`, `authApi` bound to the **http adapter** (every method throws
+"http adapter not implemented — backend phase"). The local bindings stay
+exported as `productsApiLocal` / `cartApiLocal` / `ordersApiLocal` /
+`authApiLocal`. NO existing callers have migrated yet — that is deliberate
+and deferred to the backend phase; the app still uses the seeded
+localStorage modules directly. Sync work needed when a backend exists:
+1. Migrate login/dashboard/product pages and cart logic to `@/lib/api`
+   productsApi/cartApi members. NOTE product finders return `undefined`
+   (not null) when a product is missing, so truthiness checks work as-is.
+2. After the migration, delete the now-duplicated key literals
+   `kora-market-seller-auth-v1` (kept only in `src/lib/seller-auth.ts`)
+   and `kora-market-driver-profile-v1` (kept only in
+   `src/lib/driver-tasks.ts`); `kora-market-cart-v1` and
+   `kora-market-orders-v1` still have deliberate mirrors in
+   `src/lib/api/local.ts` (commented there) plus their original
+   `storefront-provider.tsx` / `checkout-view.tsx` owners.
+3. Confirm double-effect guards on order placement (cart items keep
+   separate keys from seller-dashboard orders, so double taps cannot
+   collide) still hold if backend logic replaces any of these paths.
