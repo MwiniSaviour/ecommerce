@@ -156,3 +156,76 @@ localStorage modules directly. Sync work needed when a backend exists:
 3. Confirm double-effect guards on order placement (cart items keep
    separate keys from seller-dashboard orders, so double taps cannot
    collide) still hold if backend logic replaces any of these paths.
+
+### Task 9 smoke-test build + delivery record (2026-10-19)
+
+Built from `ad26fb3` (`feat: versioned api seam (local adapter + http stub)`
++ docs checkbox), cold-cache pipeline:
+
+1. Kill leftover dev server on 3001 (dev.log is gitignored anyway).
+2. `NODE_OPTIONS=--max-old-space-size=3000 next build --webpack` — all routes
+   prerendered, `/driver/job` (dynamic) served at request time, rest static.
+3. `npx cap sync android` — `copy 612ms` + `update 583ms`, 1 plugin found.
+4. `android/gradlew assembleDebug` — `BUILD SUCCESSFUL in 41s`
+   (cached after the 4m52s cold run in Task 4).
+
+- APK: `android/app/build/outputs/apk/debug/app-debug.apk`, 7,639,562 B.
+- SHA-256: `7309f7fa5b5c27e8af1a806a7a22e15917ff99870e4f26473ba46abf2a3a2473`.
+- Delivered for sideload: `~/storage/shared/KoraMarket-debug.apk`
+  (same SHA-256 verified after copy; owner taps it with the file manager
+  and grants the unknown-sources prompt — no adb pairing needed).
+
+CI note: `gh run list` shows no run for `48f7eb1`/`ad26fb3` — by design.
+`android-debug.yml` has a `paths:` filter on `android/**`, lockfiles,
+`capacitor.config.ts`, and itself; this push touched only `src/lib/**`
++ docs, which the Android workflow intentionally skips. Last consecutive
+green: `d53f390f86…` (run 39190150187, `BUILD SUCCESSFUL`, 2m27s), and
+that run covers the same android tree this APK came from.
+
+#### Smoke-test matrix (fill in after on-device run)
+
+1. Cold first-run: no blank screen / no white flash pre-login.
+2. `/driver/tasks` → pick job → `/driver/job?id=<real-id>` shows fields,
+   back returns to `/driver/tasks`.
+3. Cart flow: add-to-cart → checkout → success; cart badge count correct.
+4. Seller flow: sign-in with seeded ±/demo creds → dashboard → product
+   list; logout clears `kora-market-seller-auth-v1` cleanly.
+5. Hardware back button: back exits layer-by-layer (no double-back exit
+   on root screen last) — Task 7 listener behavior.
+6. All screens sized for this window height; no horizontal scrolling
+   anywhere.
+
+Results: (pending owner device run)
+
+#### Install-failure troubleshooting record (2026-10-19)
+
+First sideload attempt reported "app not installed". Investigation:
+
+- Ruled out version/ABI: device is Android 13 (API 33) arm64-v8a,
+  ≥ minSdk 24; no conflicting kora/scal package installed.
+- Ruled out corrupted copy: SHA-256 of the delivered file matched the
+  build bit-for-bit.
+- Ruled out unsigned APK: `apksigner verify` (build-tools 35 lib jar,
+  run as `java -jar lib/apksigner.jar verify --print-certs --verbose`)
+  — v2 scheme **true**, debug cert
+  `973793a5354c304be7…097`, 1 signer. (v1 shows false because the SDK
+  sign step auto-skips it at minSdk ≥ 24 — expected, not an error.)
+- Built a v1v2-fallback signed copy and left it at
+  `~/storage/shared/KoraMarket-debug-v1v2.apk`
+  (7,715,148 B, SHA-256
+  `d5294758e94d13136919085f0445b6f839f7159a073f54fe48d43132cde4120c`,
+  v2+v3 verified) as a defensive option for quirky OEM installers.
+- Installed `android-tools` 37.0.0p1-1 for a wireless-debugging adb
+  fallback; `adb` initially failed with a missing abseil symbol
+  (`_ZN4absl…LogMessageFatal…` → `abseil-cpp` package mismatch).
+  Fix: `apt-get download abseil-cpp && dpkg -i abseil-cpp_20260526.0`
+  — reinstall restored the library and `adb` runs (v1.0.41 /
+  37.0.0p1-android-tools). `adb` NOT needed for delivery; pairing
+  deferred for future debugging sessions.
+- Outcome: **install succeeded on owner retry** — root cause not
+  definitively isolated (FM read race or v2-only-signing quirk are the
+  remaining suspects; the v1v2 file may be the one that landed).
+
+#### Task 9 smoke-test results (2026-10-19)
+
+Results: (pending owner device run)
