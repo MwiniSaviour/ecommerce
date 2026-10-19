@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { StorefrontChrome } from "@/components/storefront-chrome";
 import { StorefrontProvider } from "@/components/storefront-provider";
 import { ToastNotice } from "@/components/toast-notice";
+import { CapacitorBackButton } from "@/components/capacitor-back-button";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -28,6 +29,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
   themeColor: "#f4f4f6",
 };
 
@@ -40,6 +42,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <main>{children}</main>
           <SiteFooter />
           <ToastNotice />
+          <CapacitorBackButton />
         </StorefrontProvider>
       </body>
     </html>
