@@ -140,9 +140,13 @@ cached and fast). `android/app/build/outputs/apk/debug/app-debug.apk` produced,
 `ordersApi`, `authApi` bound to the **http adapter** (every method throws
 "http adapter not implemented — backend phase"). The local bindings stay
 exported as `productsApiLocal` / `cartApiLocal` / `ordersApiLocal` /
-`authApiLocal`. NO existing callers have migrated yet — that is deliberate
-and deferred to the backend phase; the app still uses the seeded
-localStorage modules directly. Sync work needed when a backend exists:
+`authApiLocal`. Client callers migrated so far: customer-account auth
+(`account-auth-panel.tsx`, 2026-10-18) and all driver + seller-auth/
+redirect storage calls routed through `authApi` (258fb3e, 2026-10-19).
+Still on direct storage: productsApi/cartApi/ordersApi callers
+(storefront-provider.tsx cart cache + checkout-view ORDERS_KEY
+constant) and `account/addresses/page.tsx` raw local-store usage.
+Sync work needed when a backend exists:
 1. Migrate login/dashboard/product pages and cart logic to `@/lib/api`
    productsApi/cartApi members. NOTE product finders return `undefined`
    (not null) when a product is missing, so truthiness checks work as-is.
