@@ -140,23 +140,29 @@ cached and fast). `android/app/build/outputs/apk/debug/app-debug.apk` produced,
 `ordersApi`, `authApi` bound to the **http adapter** (every method throws
 "http adapter not implemented — backend phase"). The local bindings stay
 exported as `productsApiLocal` / `cartApiLocal` / `ordersApiLocal` /
-`authApiLocal`. Client callers migrated so far: customer-account auth
-(`account-auth-panel.tsx`, 2026-10-18) and all driver + seller-auth/
-redirect storage calls routed through `authApi` (258fb3e, 2026-10-19).
-Still on direct storage: productsApi/cartApi/ordersApi callers
-(storefront-provider.tsx cart cache + checkout-view ORDERS_KEY
-constant) and `account/addresses/page.tsx` raw local-store usage.
+`authApiLocal`. **Direct-storage migration is now complete** (79e406c,
+2026-10-20): customer-account auth (`account-auth-panel.tsx`, 2026-10-18),
+all driver + seller-auth/redirect storage calls (258fb3e, 2026-10-19), and
+the last two callers — `storefront-provider.tsx` (cart + wishlist via new
+`cartApi.get/getWishlist/subscribe/subscribeWishlist` + `void` writes) and
+`account/addresses/page.tsx` (via new `authApi.getAddress/setAddress/
+clearAddress/subscribeAddress`, same `kora-market-address-v1` entry —
+address data survives the refactor). The dead `ORDERS_KEY` constant was
+removed from `checkout-view.tsx` (checkout itself already used `ordersApi`),
+and `AccountAddress` is exported from `src/lib/api/index.ts`. Remaining
+client callers use `@/lib/api` only; `@/lib/local-store` primitives are
+wrapped by the seam, not called from components.
 Sync work needed when a backend exists:
-1. Migrate login/dashboard/product pages and cart logic to `@/lib/api`
-   productsApi/cartApi members. NOTE product finders return `undefined`
+1. `productsApi` has no component callers left (product reading stayed on
+   `@/lib/products` seed data). When the backend lands, switch seed-data
+   consumers to `productsApi` — NOTE product finders return `undefined`
    (not null) when a product is missing, so truthiness checks work as-is.
-2. After the migration, delete the now-duplicated key literals
-   `kora-market-seller-auth-v1` (kept only in `src/lib/seller-auth.ts`)
-   and `kora-market-driver-profile-v1` (kept only in
-   `src/lib/driver-tasks.ts`); `kora-market-cart-v1` and
-   `kora-market-orders-v1` still have deliberate mirrors in
-   `src/lib/api/local.ts` (commented there) plus their original
-   `storefront-provider.tsx` / `checkout-view.tsx` owners.
+2. Key-literal ownership after the waves: `kora-market-cart-v1`,
+   `kora-market-orders-v1`, `kora-market-address-v1` live only in
+   `src/lib/api/local.ts`; `kora-market-seller-auth-v1` is owned by
+   `src/lib/seller-auth.ts` and `kora-market-driver-profile-v1` by
+   `src/lib/driver-tasks.ts` (both invoked via the seam) — dedupe them
+   into the seam when the backend replaces those libs.
 3. Confirm double-effect guards on order placement (cart items keep
    separate keys from seller-dashboard orders, so double taps cannot
    collide) still hold if backend logic replaces any of these paths.
