@@ -13,6 +13,7 @@ export {
 } from "./local";
 
 export type {
+  AccountAddress,
   Product,
   ProductCategory,
   CategoryFilter,

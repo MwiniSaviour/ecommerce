@@ -11,3 +11,14 @@ export type { StoredOrder, StoredOrderLine } from "@/components/checkout-view";
 
 // Customer demo session: email-only, device-local.
 export type AccountSession = { email: string } | null;
+
+// One saved delivery address per device (kora-market-address-v1). Was
+// StoredAddress inside src/app/account/addresses/page.tsx before the
+// api-seam migration; every field is a non-empty string.
+export type AccountAddress = {
+  name: string;
+  region: string;
+  city: string;
+  street: string;
+  phone: string;
+};

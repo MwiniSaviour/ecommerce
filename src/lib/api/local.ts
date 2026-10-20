@@ -2,11 +2,14 @@
 // Thin wrappers over the seeded localStorage modules and the storage
 // primitives in @/lib/local-store. Kept async so the http adapter in
 // http.ts can implement the identical signatures against a backend.
-// No existing callers migrate yet; migration is a follow-up.
+// Client callers migrate onto this seam in waves; the last direct
+// localStorage callers (storefront-provider, addresses page) moved across
+// in the 2026-10-19 wave.
 
 "use client";
 
 import type {
+  AccountAddress,
   AccountSession,
   CartItem,
   DriverProfile,
@@ -39,13 +42,19 @@ import {
 } from "@/lib/driver-tasks";
 import { readStorageRaw, subscribeStorageKey, writeStorage } from "@/lib/local-store";
 
-// CART_KEY mirrors CART_STORAGE_KEY in src/components/storefront-provider.tsx
-// (that constant is module-private), so this adapter reads and writes the
-// same storage entry the storefront UI already treats as the cart.
+// Storage keys owned by this adapter. The storefront provider and the
+// address page used to hold their own copies of the cart, saved, and
+// address literals; after the api-seam migration this module is the
+// sole owner, so every version of the entry name lives here.
 const CART_KEY = "kora-market-cart-v1";
+const SAVED_KEY = "kora-market-saved-v1";
+// ADDRESS_KEY keeps writing the same kora-market-address-v1 entry the
+// address page wrote directly before its migration, so previously saved
+// addresses still load.
+const ADDRESS_KEY = "kora-market-address-v1";
 
-// ORDERS_STORAGE_KEY mirrors ORDERS_KEY in src/components/checkout-view.tsx
-// so customer orders land in the same storage entry checkout has always used.
+// ORDERS_STORAGE_KEY is the customer-order journal; checkout-view no
+// longer keeps its own copy of the literal (api-seam migration).
 const ORDERS_STORAGE_KEY = "kora-market-orders-v1";
 
 // ACCOUNT_SESSION_KEY is the customer demo session written by
@@ -93,6 +102,38 @@ function writeCart(items: CartItem[]): void {
   writeStorage(CART_KEY, JSON.stringify(items));
 }
 
+function parseSavedIds(raw: string | null): string[] {
+  if (!raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return [...new Set(parsed.filter((id): id is string => typeof id === "string"))].filter((id) => Boolean(getProductById(id)));
+  } catch {
+    return [];
+  }
+}
+
+function parseStoredAddress(raw: string | null): AccountAddress | null {
+  if (raw === null) return null;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (typeof parsed !== "object" || parsed === null) return null;
+    const item = parsed as Record<string, unknown>;
+    const fields = ["name", "region", "city", "street", "phone"] as const;
+    return fields.every((field) => typeof item[field] === "string" && (item[field] as string).length > 0)
+      ? {
+          name: item.name as string,
+          region: item.region as string,
+          city: item.city as string,
+          street: item.street as string,
+          phone: item.phone as string,
+        }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 export const cartApi = {
   async get(): Promise<CartItem[]> {
     return parseCart(readStorageRaw(CART_KEY));
@@ -124,9 +165,20 @@ export const cartApi = {
     writeStorage(CART_KEY, null);
   },
   subscribe(callback: (items: CartItem[]) => void): () => void {
-    // subscribeStorageKey only observes change events, not values, so the
-    // fresh cart is parsed on every notification before it reaches callers.
     return subscribeStorageKey(CART_KEY, () => callback(parseCart(readStorageRaw(CART_KEY))));
+  },
+  subscribeWishlist(callback: (ids: string[]) => void): () => void {
+    return subscribeStorageKey(SAVED_KEY, () => callback(parseSavedIds(readStorageRaw(SAVED_KEY))));
+  },
+  async toggleWishlist(id: string): Promise<void> {
+    // Read-modify-write here rather than in the caller so every seam
+    // consumer agrees on the same underlying storage entry.
+    const ids = parseSavedIds(readStorageRaw(SAVED_KEY));
+    const next = ids.includes(id) ? ids.filter((savedId) => savedId !== id) : [...ids, id];
+    writeStorage(SAVED_KEY, JSON.stringify(next));
+  },
+  async getWishlist(): Promise<string[]> {
+    return parseSavedIds(readStorageRaw(SAVED_KEY));
   },
 };
 
@@ -226,5 +278,19 @@ export const authApi = {
   },
   subscribeDriverAvailability(callback: (value: "online" | "offline") => void): () => void {
     return subscribeStorageKey(DRIVER_AVAILABILITY_KEY, () => callback(parseDriverAvailability(readStorageRaw(DRIVER_AVAILABILITY_KEY))));
+  },
+  async getAddress(): Promise<AccountAddress | null> {
+    return parseStoredAddress(readStorageRaw(ADDRESS_KEY));
+  },
+  async setAddress(address: AccountAddress): Promise<void> {
+    // Same entry the address page wrote directly before its migration,
+    // so previously saved addresses keep loading.
+    writeStorage(ADDRESS_KEY, JSON.stringify(address));
+  },
+  async clearAddress(): Promise<void> {
+    writeStorage(ADDRESS_KEY, null);
+  },
+  subscribeAddress(callback: (address: AccountAddress | null) => void): () => void {
+    return subscribeStorageKey(ADDRESS_KEY, () => callback(parseStoredAddress(readStorageRaw(ADDRESS_KEY))));
   },
 };

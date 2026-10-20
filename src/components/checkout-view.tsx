@@ -43,8 +43,6 @@ export type StoredOrder = {
   items: StoredOrderLine[];
 };
 
-export const ORDERS_KEY = "kora-market-orders-v1";
-
 const emailPattern = /^\S+@\S+\.\S+$/;
 
 export function CheckoutView() {

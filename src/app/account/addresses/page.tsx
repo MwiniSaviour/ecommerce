@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2, MapPin, Trash2 } from "lucide-react";
-import { readStorageRaw, subscribeStorageKey, writeStorage } from "@/lib/local-store";
+import { authApi, type AccountAddress } from "@/lib/api";
 
 const regions = [
   "Ahafo",
@@ -24,44 +24,27 @@ const regions = [
   "Western North",
 ];
 
-type StoredAddress = {
-  name: string;
-  region: string;
-  city: string;
-  street: string;
-  phone: string;
-};
-
-function parseStoredAddress(raw: string | null): StoredAddress | null {
-  if (raw === null) return null;
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (typeof parsed !== "object" || parsed === null) return null;
-    const item = parsed as Record<string, unknown>;
-    const fields = ["name", "region", "city", "street", "phone"] as const;
-    return fields.every((field) => typeof item[field] === "string" && (item[field] as string).length > 0)
-      ? {
-          name: item.name as string,
-          region: item.region as string,
-          city: item.city as string,
-          street: item.street as string,
-          phone: item.phone as string,
-        }
-      : null;
-  } catch {
-    return null;
-  }
-}
-
+// The stored address moved behind the api seam (api-seam migration);
+// this page reads and writes through authApi instead of touching the
+// kora-market-address-v1 localStorage entry directly.
 export default function AddressPage() {
   const [notice, setNotice] = useState("");
-  const [errors, setErrors] = useState<Partial<Record<keyof StoredAddress, string>>>({});
-  const raw = useSyncExternalStore(
-    (callback) => subscribeStorageKey("kora-market-address-v1", callback),
-    () => readStorageRaw("kora-market-address-v1"),
-    () => null,
-  );
-  const saved = useMemo(() => parseStoredAddress(raw), [raw]);
+  const [errors, setErrors] = useState<Partial<Record<keyof AccountAddress, string>>>({});
+  const [saved, setSaved] = useState<AccountAddress | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void authApi.getAddress().then((address) => {
+      if (active) setSaved(address);
+    });
+    const unsubscribe = authApi.subscribeAddress((address) => {
+      if (active) setSaved(address);
+    });
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, []);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -73,7 +56,7 @@ export default function AddressPage() {
       street: String(data.get("street") ?? "").trim(),
       phone: String(data.get("phone") ?? "").trim(),
     };
-    const nextErrors: Partial<Record<keyof StoredAddress, string>> = {};
+    const nextErrors: Partial<Record<keyof AccountAddress, string>> = {};
     if (!nextErrors.name && candidate.name.length === 0) nextErrors.name = "Add the name that should appear at the door.";
     if (candidate.region.length === 0) nextErrors.region = "Pick a region so couriers know where to go.";
     if (candidate.city.length === 0) nextErrors.city = "Add the town or city nearest to you.";
@@ -87,21 +70,15 @@ export default function AddressPage() {
       return;
     }
     setErrors({});
-    try {
-      writeStorage("kora-market-address-v1", JSON.stringify(candidate));
+    void authApi.setAddress(candidate).then(() => {
       setNotice("Delivery address saved — checkout will reuse it.");
-    } catch {
-      setNotice("This browser blocked saving. Try again or allow storage for this site.");
-    }
+    });
   }
 
   function handleDelete() {
-    try {
-      writeStorage("kora-market-address-v1", null);
-    } catch {
-      return;
-    }
-    setNotice("Address removed. Next checkout will ask for it again.");
+    void authApi.clearAddress().then(() => {
+      setNotice("Address removed. Next checkout will ask for it again.");
+    });
   }
 
   const inputClass =
